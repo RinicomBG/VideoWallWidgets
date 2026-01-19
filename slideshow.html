@@ -216,7 +216,6 @@
 
 		image.onload = () => {
 			resizeCanvases();
-			requestAnimationFrame(animate);
 		};
 
 		var g_jsonRpcService = null;
@@ -235,12 +234,8 @@
 				}
 			};
 			jsonRpcService.onMethodCalled = onMessageReceived;
-			//otherSendBtn").on("click", async function () {
-			//	const prompt = prompt.value;
-			//	const action = "sendPrompt";
-			//	jsonRpcService.sendMessage(topic, {"jsonrpc":"2.0","method":action,"id":null,"params":{"prompt":prompt}});
-			//});
 			g_jsonRpcService = jsonRpcService;
+			requestAnimationFrame(animate);
 		});
 
 	</script>
