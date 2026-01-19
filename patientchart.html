@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script type="text/javascript" src="res/jquery-1.11.2/jquery-1.11.2.js"></script>
+<script type="text/javascript" src="res/jquery-svg-1.5.0/jquery-svg-1.5.0.js"></script>
+<script type="text/javascript" src="res/svgchart-0.1.0/svgchart.js"></script>
+<script type="text/javascript" src="res/local/formatNumber.js"></script>
+<script type="text/javascript" src="res/local/browserResizeEvent.js"></script>
+<script type="text/javascript" src="res/local/rangeFunctions.js"></script>
+<script type="text/javascript" src="res/local/ticker.js"></script>
+
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	background: transparent;
+}
+h1 {
+	display: block;
+	text-align: center;
+	background: transparent;
+	color: green;
+}
+mark {
+	background: inherit;
+	color: red;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Patient</h1>
+
+<div>
+
+<div id="chartHolder-0" style="height:300px;"></div>
+
+</div>
+
+<script>
+'use strict';
+
+// ================================================================================================================
+// Initialise the chart contexts (make SVG elements etc.)
+// ...
+// ================================================================================================================
+
+
+var charts = [];
+
+$(function() {
+	var hover_callback_function = function(self, destinationX, destinationY, xaxisPosition) {
+		var i;
+		for (i = 0; i < charts.length; i++) {
+			if (charts[i] === self) {
+				charts[i].update_legend_with_selection_hover();
+			} else {
+				charts[i].move_selection_to_destination_x(destinationX);
+				charts[i].update_legend_with_selection_hover();
+			}
+		}
+	};
+
+	var chart = new SVGChart('#chartHolder-0');
+	var margin_top = 15, margin_bottom = 15, margin_left = 80, margin_right = 80;
+	chart.draw_axis(
+			margin_left,
+			margin_top,
+			$(chart.container).width()-(margin_left) - (margin_right),
+			$(chart.container).height()-(margin_top) - margin_bottom);
+	chart.add_renderer({
+		ids:[1],
+		colour:'red',
+		chart_type:'L',
+		yaxis_idx:0
+	});
+	/*
+	chart.add_renderer({
+		ids:[2],
+		colour:'blue',
+		chart_type:'L',
+		yaxis_idx:0
+	});
+	chart.add_renderer({
+		ids:[1],
+		colour:'green',
+		chart_type:'L',
+		yaxis_idx:1
+	});
+	*/
+	chart.yaxes[0].label = "Heartrate";
+	chart.yaxes[0].colour = 'red';
+	//chart.yaxes[1].label = "Depth (m) Alpha Echo 35";
+	//chart.yaxes[1].colour = 'blue';
+	//chart.selected_callback = onselectcallback;
+	//chart.hover_callback = hover_callback_function;
+
+	charts.push(chart);
+	
+});
+
+$(function() {
+	var ondataloadedcallback = function(arg) {
+		// preprocess the data from the server...
+		for (var j = 0; j < arg.datasets.length; j++) {
+			var dataset = arg.datasets[j];
+			if (dataset["data_type"] == "timestamped") {
+				svgGraphHelper.processTimestampedData(dataset);
+				//console.log("Timeseries [" + j + "] Max and Min v is " + dataset.y_max_v + "  " + dataset.y_min_v);
+			}
+			if (dataset["data_type"] == "fixed-interval") {
+				svgGraphHelper.processFixedIntervalData(dataset);
+				//console.log("Fixed Interval [" + j + "] Max and Min v is " + dataset.y_max_v + "  " + dataset.y_min_v);
+			}
+		}
+		
+		for (var i = 0; i < charts.length; i ++) {
+			var chart = charts[i];
+			for (var j = 0; j < arg.datasets.length; j++) {
+				var dataset = arg.datasets[j];
+				if (chart.can_render(dataset)) {
+					chart.add_dataset(dataset);
+				}
+			}
+			chart.render();
+		}
+	}
+
+	var load_chart_for = function(dataurl, startingTs, endingTs) {
+		var xaxis = { min_v: startingTs, max_v: endingTs, colour: 'white', draw_gridlines: true, draw_ticks: false, draw_text: false };
+		xaxis.values = (new SVGChartNiceTimes()).get_axis_values(xaxis.min_v, xaxis.max_v, 10);
+		
+		for (var i = 0; i < charts.length - 1; i ++) {
+			var chart = charts[i];
+			chart.remove_datasets();
+			chart.xaxis = xaxis;
+		}
+		
+		var chart = charts[charts.length - 1];
+		chart.remove_datasets();
+		xaxis = { min_v: startingTs, max_v: endingTs, colour: 'white', draw_gridlines: true, draw_ticks: true, draw_text: true };
+		xaxis.values = (new SVGChartNiceTimes()).get_axis_values(xaxis.min_v, xaxis.max_v, 10);
+		chart.xaxis = xaxis;
+		
+		$.ajax({
+			url: dataurl,
+			type: 'get',
+			dataType: 'json',
+			success: function(data, status) {
+				var chartData = { datasets: data };
+				// TODO: Override axis here...
+				chartData.x_min_v = startingTs;
+				chartData.x_max_v = endingTs;
+				ondataloadedcallback(chartData);
+			},
+			error: function(xhr, status, errorThrown) {
+				console.log("Error Status " + status + " - " + errorThrown);
+			}
+			//dataFilter: function(data, type) {
+			//	console.log(data);
+			//	return data;
+			//}
+		});
+	}
+
+	var onselectcallback = function(self, startingTimestamp, endingTimestamp) {
+		//alert("Callback: " + startingTimestamp + "  " + endingTimestamp + "\r\n" +
+		//	moment.utc(startingTimestamp).format("YYYY-MM-DD HH:mm:ss") + " - " + moment.utc(endingTimestamp).format("YYYY-MM-DD HH:mm:ss"));
+		location.href = "#sts," + startingTimestamp + ",ets," + endingTimestamp;
+		self.clear_selection();
+	}
+
+	for (var i = 0; i < charts.length; i++) {
+		var chart = charts[i];
+		chart.selected_callback = onselectcallback;
+	}
+
+	var onhashchangecallback = function() {
+		if (location.hash == '') {
+			// INITIAL LOAD OF PAGE and when the user clicks back after only one click and drag selection.
+			load_chart_for('chartdata_0.json', 1376092800000 - (120000 * 50), 1376103240000 + (120000 * 50)); // 1376092800000 + (120000 * 50));
+		} else {
+			var parts = location.hash.split(",");
+			load_chart_for('chartdata_0.json', parseInt(parts[1]), parseInt(parts[3]));
+		}
+	}
+
+	window.onhashchange = onhashchangecallback;
+
+	// ================================================================================================================
+	// Buttons
+	// ================================================================================================================
+	// Date Range Selection	
+	// ================================================================================================================
+	// Debug Stuff
+	onhashchangecallback();
+
+	$(window).bind('resizeEnd', function() {
+		//console.log("resize end");
+		onhashchangecallback();
+	});
+});
+
+
+
+</script>
+
+	<script>
+		(function(){
+			var element = document.getElementsByTagName('h1')[0];
+			var timeoutFunction = function(){
+				ticker_tick(element);
+				setTimeout(timeoutFunction, 200);
+			};
+			timeoutFunction();
+		})();
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+		body {
+			display: flex;
+			flex-direction: column;
+			height: 100vh;
+			margin: 0;
+			overflow: hidden;
+			background-color: #ffffff; /* Light background */
+			color: #333333; /* Dark text */
+		}
+
+		header {
+			padding: 10px 20px;
+			background-color: #f0f0f0;
+			border-bottom: 1px solid #ccc;
+			text-align: center;
+		}
+
+		h1 {
+			margin: 0;
+			color: #333333;
+		}
+
+		.content-area {
+			flex-grow: 1;
+			display: flex;
+			padding: 20px;
+			box-sizing: border-box;
+			min-height: 0;
+		}
+
+		form {
+			flex-grow: 1;
+			display: flex;
+			box-sizing: border-box;
+			flex-direction: column;
+			width: 100%;
+			height: 100%;
+			padding: 0;
+			margin: 0;
+		}
+
+		textarea {
+			flex-grow: 1;
+			font-family: monospace;
+			width: 100%;
+			height: 100%;
+			resize: none;
+			padding: 10px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 16px;
+			box-sizing: border-box;
+			overflow: auto;
+			background-color: #ffffff;
+			color: #333333;
+		}
+
+		.button-container {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			padding: 10px 20px;
+			background-color: #f0f0f0;
+			border-top: 1px solid #ccc;
+		}
+
+.status-indicator {
+	margin-right: auto;
+	display: inline-flex;
+	align-items: center;
+	font-size: 0.9em;
+	color: #666;
+}
+
+.status-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: #666;
+	flex-shrink: 0;
+	margin-right: 5px;
+}
+
+		.status-dot.modified {
+			background-color: #ff0000; /* Red when modified */
+		}
+
+		.status-dot.saved {
+			background-color: #666; /* Neutral color */
+		}
+
+		button {
+			padding: 10px 20px;
+			margin-left: 10px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 16px;
+		}
+
+		button.save {
+			background-color: #4CAF50; /* Green */
+			color: white;
+		}
+
+		button.cancel {
+			background-color: #f44336; /* Red */
+			color: white;
+		}
+
+		/* Dark Theme - Applied when user's system prefers dark mode */
+		@media (prefers-color-scheme: dark) {
+			body {
+				background-color: #282c34; /* Dark background (e.g., Dracula theme base) */
+				color: #abb2bf; /* Light text (e.g., Dracula theme foreground) */
+			}
+
+			header {
+				background-color: #21252b; /* Darker header */
+				border-bottom-color: #444444;
+			}
+
+			h1 {
+				color: #61afef; /* A pleasant blue for headers in dark mode */
+			}
+
+			textarea {
+				background-color: #1e2127; /* Very dark textarea background */
+				border-color: #444444;
+				color: #abb2bf;
+			}
+
+			.button-container {
+				background-color: #21252b;
+				border-top-color: #444444;
+			}
+
+			.status-indicator {
+				color: #7f8c8d; /* Neutral color for dark theme */
+			}
+
+			.status-dot.modified {
+				background-color: #e06c75; /* Muted red for dark theme */
+			}
+
+			.status-dot.saved {
+				background-color: #7f8c8d; /* Neutral color for dark theme */
+			}
+
+			button.save {
+				background-color: #98c379; /* A muted green for dark mode */
+				color: #282c34; /* Dark text on light button */
+			}
+
+			button.cancel {
+				background-color: #e06c75; /* A muted red for dark mode */
+				color: #282c34;
+			}
+		}
+
+.file-status-message {
+	margin: 0 10px;
+	font-size: 0.9em;
+	color: #999;
+	align-self: center;
+	white-space: nowrap;
+}
+
+/* Optional: dark mode adjustment */
+@media (prefers-color-scheme: dark) {
+	.file-status-message {
+		color: #bbb;
+	}
+}
+
+/*.container {
+	max-width: 800px;
+	margin: 0 auto;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	box-sizing: border-box;
+}*/
+
+			.container {
+				margin: 0 auto;
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				box-sizing: border-box;
+			}
+
+		/* Media query for very small screens if scrollbars become unavoidable */
+		@media (max-width: 600px) {
+			header, .button-container {
+				padding: 5px 10px;
+			}
+			button {
+				padding: 8px 15px;
+				font-size: 14px;
+			}
+			.status-indicator {
+				font-size: 0.8em;
+			}
+		}
+

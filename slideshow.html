@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Mouse Following Glowing Dot</title>
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+
+		#container {
+			position: relative;
+			width: 100vw;
+			height: 100vh;
+		}
+
+		canvas {
+			position: absolute;
+			top: 0;
+			left: 0;
+			display: block;
+		}
+	</style>
+	<script src="res/local/mqtt.min.js"></script>
+	<script src="res/local/jsonrpcovermqtt.js"></script>
+</head>
+<body>
+	<div id="container">
+		<canvas id="bgCanvas"></canvas>
+		<canvas id="dotCanvas"></canvas>
+	</div>
+
+	<script>
+		const RPCMETH_ADVANCE_SLIDE = "advance_slide";
+		const RPCMETH_MOUSE_MOVE = "mouse_moved";
+		const RPCMETH_MOUSE_CLICK = "mouse_clicked";
+
+		const bgCanvas = document.getElementById("bgCanvas");
+		const dotCanvas = document.getElementById("dotCanvas");
+
+		const bgCtx = bgCanvas.getContext("2d");
+		const dotCtx = dotCanvas.getContext("2d");
+
+		const slides = [ "slides/slide_01_introduction.png", "slides/slide_02_a_widget.png", "slides/slide_02_widget.png", "slides/slide_03_zorder.png", "slides/blank.png" ];
+		var slide_current = 0;
+
+		const image = new Image();
+		image.src = slides[slide_current];
+		let drawBackgroundImage = false;
+
+		const dpr = window.devicePixelRatio || 1;
+		let resizeTimeout = null;
+
+		const dot = {
+			x: 0,
+			y: 0,
+			radius: 6,
+			minAlpha: 0.25,
+			maxAlpha: 1.0,
+			glowRadius: 8,
+			speed: 2.5,
+			phase: 0
+		};
+
+		function onDotClick(x, y) {
+			//console.log("Dot clicked at:", x, y);
+			g_jsonRpcService.sendMessage(g_jsonRpcService.defaultTopic, {"jsonrpc":"2.0","method":RPCMETH_MOUSE_CLICK,"id":null,"params":{"x":x,"y":y}});
+		}
+
+		function onDotMove(x, y) {
+			g_jsonRpcService.sendMessage(g_jsonRpcService.defaultTopic, {"jsonrpc":"2.0","method":RPCMETH_MOUSE_MOVE,"id":null,"params":{"x":x,"y":y}});
+		}
+
+		function resizeCanvases() {
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+
+			[bgCanvas, dotCanvas].forEach(canvas => {
+				canvas.width = width * dpr;
+				canvas.height = height * dpr;
+				canvas.style.width = width + "px";
+				canvas.style.height = height + "px";
+			});
+
+			bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			dotCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+			redrawBackground();
+		}
+
+		function redrawBackground() {
+			if (!image.complete) return;
+			bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+			//bgCtx.imageSmoothingEnabled = false;
+			bgCtx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
+		}
+
+		image.onload = function() {
+			//if (!image.complete) return;
+			//console.log("Called");
+			//bgCtx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
+			drawBackgroundImage = true;
+			//resizeCanvases();
+		}
+
+		function clearDotArea(x, y) {
+			const r = dot.radius + dot.glowRadius + 2;
+			dotCtx.clearRect(x - r, y - r, r * 2, r * 2);
+		}
+
+		function drawDot(alpha) {
+			dotCtx.save();
+			dotCtx.globalAlpha = alpha;
+			dotCtx.fillStyle = "red";
+			dotCtx.shadowColor = "red";
+			dotCtx.shadowBlur = dot.glowRadius;
+
+			dotCtx.beginPath();
+			dotCtx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+			dotCtx.fill();
+
+			dotCtx.restore();
+			
+			if (drawBackgroundImage) {
+				drawBackgroundImage = false;
+				bgCtx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
+			}
+		}
+
+		let lastAnimateCallTime = 0;
+
+		function animate() {
+
+			if (Date.now() - lastAnimateCallTime > 10) {
+				clearDotArea(dot.x, dot.y);
+
+				dot.phase += dot.speed * 0.016;
+				const t = (Math.sin(dot.phase) + 1) / 2;
+				const alpha = dot.minAlpha + t * (dot.maxAlpha - dot.minAlpha);
+
+				drawDot(alpha);
+				lastAnimateCallTime = Date.now();
+			}
+			requestAnimationFrame(animate);
+		}
+
+		let redDotTimeout = null;
+		function debouncedMoveRedDot(x, y) {
+			clearTimeout(redDotTimeout);
+			redDotTimeout = setTimeout(() => { onDotMove(x, y); }, 40);
+		}
+
+		// Mouse follow
+		dotCanvas.addEventListener("mousemove", e => {
+			const rect = dotCanvas.getBoundingClientRect();
+			clearDotArea(dot.x, dot.y);
+			dot.x = e.clientX - rect.left;
+			dot.y = e.clientY - rect.top;
+			const x_ = dot.x / rect.width;
+			const y_ = dot.y / rect.height;
+			debouncedMoveRedDot(x_, y_);
+		});
+
+		function moveRedDot(x, y) {
+			const rect = dotCanvas.getBoundingClientRect();
+			clearDotArea(dot.x, dot.y);
+			dot.x = x * rect.width;
+			dot.y = y * rect.height;
+		}
+
+		// Left-click callback
+		dotCanvas.addEventListener("mousedown", e => {
+			if (e.button !== 0) return;
+
+			const rect = dotCanvas.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			const y = e.clientY - rect.top;
+			const x_ = x / rect.width;
+			const y_ = y / rect.height;
+
+			onDotClick(x_, y_);
+		});
+
+		// Debounced resize
+		window.addEventListener("resize", () => {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(resizeCanvases, 100);
+		});
+
+		function slideAdvance(advanceBy) {
+			slide_current = slide_current + advanceBy;
+			if (slide_current >= slides.length) {
+				slide_current = 0;
+			}
+			if (slide_current < 0) {
+				slide_current = slides.length - 1;
+			}
+			image.src = slides[slide_current];
+		}
+	
+		// Slide back and forward
+		window.addEventListener("keydown", e => {
+			switch (e.key) {
+				case 'ArrowLeft': slideAdvance(-1);
+					g_jsonRpcService.sendMessage(g_jsonRpcService.defaultTopic, {"jsonrpc":"2.0","method":RPCMETH_ADVANCE_SLIDE,"id":null,"params":{"advance_by":-1}});
+					break;
+				case 'ArrowRight': slideAdvance(1);
+					g_jsonRpcService.sendMessage(g_jsonRpcService.defaultTopic, {"jsonrpc":"2.0","method":RPCMETH_ADVANCE_SLIDE,"id":null,"params":{"advance_by":1}});
+					break;
+			}
+		});
+
+		image.onload = () => {
+			resizeCanvases();
+			requestAnimationFrame(animate);
+		};
+
+		var g_jsonRpcService = null;
+
+		document.addEventListener('DOMContentLoaded', function() {
+			var url = new URL(window.location.href);
+			const topic = "slideshow";
+			var jsonRpcService = new JsonRpcService('ws://' + url.hostname + ':9000', topic);
+			jsonRpcService.defaultTopic = topic;
+			var onMessageReceived = function(topic, message) {
+				if (message.method === RPCMETH_MOUSE_MOVE) {
+					moveRedDot(message.params.x, message.params.y);
+				}
+				if (message.method === RPCMETH_ADVANCE_SLIDE) {
+					slideAdvance(message.params.advance_by);
+				}
+			};
+			jsonRpcService.onMethodCalled = onMessageReceived;
+			//otherSendBtn").on("click", async function () {
+			//	const prompt = prompt.value;
+			//	const action = "sendPrompt";
+			//	jsonRpcService.sendMessage(topic, {"jsonrpc":"2.0","method":action,"id":null,"params":{"prompt":prompt}});
+			//});
+			g_jsonRpcService = jsonRpcService;
+		});
+
+	</script>
+</body>
+</html>
+

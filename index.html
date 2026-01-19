@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="res/local/ticker.js"></script>
+		<style>
+			body {
+				background: #442222;
+				color: #cccccc;
+			}
+			mark {
+				background:inherit;
+				color:red;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Escort Project</h1>
+	</body>
+	<script>
+		(function(){
+			var element = document.getElementsByTagName('h1')[0];
+			var timeoutFunction = function(){
+				ticker_tick(element);
+				setTimeout(timeoutFunction, 200);
+			};
+			timeoutFunction();
+		})();
+	</script>
+</html>
+
