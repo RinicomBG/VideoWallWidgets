@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<link rel="stylesheet" id="default-css" type="text/css" media="all" href="controlpanel.css" />
+<script src="res/local/mqtt.min.js"></script>
+<script src="res/local/jsonrpcovermqtt.js"></script>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Watchman Control Panel</h1>
+</header>
+
+<div class="content-area">
+<textarea id="editorTextarea">
+{"jsonrpc": "2.0","id": "SET_CURRENT_SCENE","method": "set_current_scene", "params":["B", false]}
+</textarea><br/>
+</div>
+<div class="button-container">
+<button class="save" id="sendButton">Send</button>
+</div>
+<script>
+'use strict';
+
+(function(){
+var url = new URL(window.location.href);
+const uri = "ws://" + url.hostname + ":9000";
+const topic = "watchman_rpc";
+var dataConnection = mqtt.connect(uri, topic);
+var baseId = "JSJSONRPC-" + Date.now() + "/" + Math.floor(Math.random()*1000);
+dataConnection.on('connect', function (event) {
+	self.clientId = baseId;
+	console.log("Connected " + uri + ", subscribing to " + topic + " topic");
+	dataConnection.subscribe(topic);
+}.bind(dataConnection));
+
+		sendButton.addEventListener('click', e => {
+			e.preventDefault();
+			//initialText = editorTextarea.value;
+			//alert('Content saved!');
+			dataConnection.publish(topic, editorTextarea.value);
+		});
+})();
+
+</script>
+</div>
+</body>
+</html>
