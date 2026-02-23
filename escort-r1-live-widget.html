@@ -28,6 +28,7 @@
 		--card-border-warning: #c48a1d;
 		--card-border-danger: #b6463a;
 		--card-border-none: #173a5c;
+		--card-border-other: #1b7fc1;
 	}
 
 	@font-face {
@@ -150,7 +151,7 @@
 		padding: 16px;
 		display: flex;
 		justify-content: center;
-		align-items: center;
+		align-items: flex-start;
 		flex-wrap: wrap;
 		gap: 12px;
 	}
@@ -181,6 +182,7 @@
 		border-width: 5px;
 		border-style: solid;
 		border-color: var(--card-border-none);
+		cursor: pointer;
 	}
 
 	.card-wide {
@@ -276,24 +278,36 @@
 </style>
 
 <script>
-  var drawALine = function() {
-	  const svge = document.querySelector("svg");
+
+var drawALine = function() {
+const svge = document.querySelector("svg");
 const width = svg.clientWidth;
 const height = svg.clientHeight;
-
-	  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-	  console.log("width and height", width, height);
-
+svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+console.log("width and height", width, height);
 const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
 line.setAttribute("x1", 0);
 line.setAttribute("y1", 0);
 line.setAttribute("x2", width);
 line.setAttribute("y2", height);
 line.setAttribute("stroke", "black");
+svg.appendChild(line);}
 
-	  svg.appendChild(line);}
+
+function on_received_data(data) {
+	// TODO: translate the received data into the function calls
+
+	updateCard(5, { title: "ICU Beds Required", value: "70", note: "12% of total capacity", progress: 12, highlight: "other" });
+	updateBadges([ ["M", "7.2"], ["Pop", "4,000,000"], ["Distance", "45", "km"], ["Depth", "12", "m"], ["Collapse", "5", "%"] ]);
+	updateSeverityCounts({mild: 1436, severe: 328, critical: 97});
+
+}
+
 
 </script>
+
+<script src="res/local/escort-widgets.js"></script>
+
 <script>
 
 const onloadedfunction = function() {
@@ -689,53 +703,81 @@ document.addEventListener('DOMContentLoaded', onloadedfunction);
 				<h1 style="margin-top: 4px; margin-bottom: 8px; margin-left: 16px;">Medical Resources</h1>
 				<div class="grid-item" style="display: flex; flex-direction: column; background: var(--bg-section); border-radius: 16px; padding: 10px; align-items: stretch; justify-content: flex-start;">
 
-			<!-- p style="color: var(--text-secondary); width: 100%; text-align: center;">Right column cell 2</p -->
-			<div class="card" style="flex: 0 0 auto;">
-				<div class="card-header">
-					<div class="card-title-left">Surgeries required</div>
-					<div class="card-value-right">1436</div>
-				</div>
-				<div class="progress-bar">
-					<div class="progress-fill" style="width: 65%; background: var(--progress-other);"></div>
-				</div>
-				<!-- div class="card-note">
-					Normal range between 25 and 75%
-				</div -->
-			</div>
-			<div class="card" style="border-color: var(--progress-danger); flex: 0 0 auto;">
-				<div class="card-header">
-					<div class="card-title-left">ICU beds required</div>
-					<div class="card-value-right">311</div>
-				</div>
-				<div class="progress-bar">
-					<div class="progress-fill" style="width: 18%; background: var(--progress-danger);"></div>
-				</div>
-				<!-- div class="card-note">
-					Normal range between 25 and 75%
-				</div -->
-			</div>
-			<div class="card" style="border-color: var(--progress-warning); flex: 0 0 auto;">
-				<div class="card-header">
-					<div class="card-title-left">Dialysis patients</div>
-					<div class="card-value-right">127</div>
-				</div>
-				<div class="progress-bar">
-					<div class="progress-fill" style="width: 8%; background: var(--progress-warning);"></div>
-				</div>
-				<!-- div class="card-note">
-					Normal range between 25 and 75%
-				</div -->
-			</div>
+					<!-- p style="color: var(--text-secondary); width: 100%; text-align: center;">Right column cell 2</p -->
+					<div class="card" style="flex: 0 0 auto; height: 80px;">
+						<div class="card-header">
+							<div class="card-title-left">Surgeries required</div>
+							<div class="card-value-right">1436</div>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" style="width: 65%; background: var(--progress-other);"></div>
+						</div>
+						<!-- div class="card-note">
+							Normal range between 25 and 75%
+						</div -->
+					</div>
+					<div class="card" style="border-color: var(--progress-danger); flex: 0 0 auto; height: 80px;">
+						<div class="card-header">
+							<div class="card-title-left">ICU beds required</div>
+							<div class="card-value-right">311</div>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" style="width: 18%; background: var(--progress-danger);"></div>
+						</div>
+						<!-- div class="card-note">
+							Normal range between 25 and 75%
+						</div -->
+					</div>
+					<div class="card" style="border-color: var(--progress-warning); flex: 0 0 auto; height: 80px;">
+						<div class="card-header">
+							<div class="card-title-left">Dialysis patients</div>
+							<div class="card-value-right">127</div>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" style="width: 8%; background: var(--progress-warning);"></div>
+						</div>
+						<!-- div class="card-note">
+							Normal range between 25 and 75%
+						</div -->
+					</div>
 
+				</div>
+				<h1 style="margin-top: 4px; margin-bottom: 8px; margin-left: 16px;">Severity (derived)</h1>
+				<div id="severity-grid-item" class="grid-item" style="display: flex; flex-direction: column; background: var(--bg-section); border-radius: 16px; padding: 10px; align-items: stretch; justify-content: flex-start;">
+					<div class="card" style="flex: 0 0 auto; height: 200px;">
+						<div class="card-header">
+							<div class="card-title-left">Mild</div>
+							<div class="card-value-right">1436</div>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" style="width: 65%; background: var(--progress-good);"></div>
+						</div>
+						<div class="card-header">
+							<div class="card-title-left">Severe</div>
+							<div class="card-value-right">328</div>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" style="width: 65%; background: var(--progress-warning);"></div>
+						</div>
+						<div class="card-header">
+							<div class="card-title-left">Critical</div>
+							<div class="card-value-right">328</div>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" style="width: 65%; background: var(--progress-danger);"></div>
+						</div>
+
+					</div>
 				</div>
 			</div>
 
 		</div>
+
 		<div class="grid-item big">
 			<div class="card-wide">
 				<div class="card-header">
-				<div class="card-title-left-major">Population Over Time</div>
-				<div class="card-value-right">-294M</div>
+					<div class="card-title-left-major">Population Over Time</div>
+					<div class="card-value-right">-294M</div>
 				</div>
 				<svg width="100%" height="400" viewBox="0 0 150 150" id="chart">
 <circle cx="75" cy="75" r="60" fill="#1b4c7a" />
@@ -748,6 +790,19 @@ document.addEventListener('DOMContentLoaded', onloadedfunction);
 	</div>
 
 </div>
+
+<script>
+document.querySelectorAll(".card").forEach(card => {
+    card.addEventListener("click", function() {
+		var titleQs = this.querySelector(".card-title");
+		if (titleQs === null) {
+			titleQs = this.querySelector('.card-header .card-title-left');
+		}
+        console.log("Clicked:", titleQs.innerText);
+    });
+});
+
+</script>
 
 </body>
 </html>
