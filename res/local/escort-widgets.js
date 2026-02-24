@@ -1,197 +1,395 @@
 /*
- * updateBadges([ ["", ""], ["", ""], ["", ""] ])
- *
+ * ============================================================
+ * Configuration
+ * ============================================================
  */
-function updateBadges(badgeData) {
-	const badgeElements = document.querySelectorAll('.badges .badge');
 
-	badgeData.forEach((item, index) => {
-		if (!badgeElements[index]) return;
+const UNITS = {
+	km: "km",
+	pct: "%",
+	g: "g"
+};
 
-		var [label, value, unit] = item;
+const LABEL_OVERRIDES = {
+	Magnitude: "M",
+	Population: "Pop",
+	Pga: "Computed PGA"
+};
 
-		unit = unit === undefined ? '' : unit;
+/*
+ * ============================================================
+ * Utilities
+ * ============================================================
+ */
 
-		badgeElements[index].innerHTML = `
-			${label}: <span>${value}</span>${unit}
-		`;
+const $all = (selector, root = document) =>
+	Array.from(root.querySelectorAll(selector));
+
+const $id = (id) => document.getElementById(id);
+
+const setHTML = (el, html) => {
+	if (el) el.innerHTML = html;
+};
+
+const formatNumber = (value, decimals = 0) =>
+	value.toLocaleString(
+		"en-US",
+		decimals > 0
+			? {
+					minimumFractionDigits: decimals,
+					maximumFractionDigits: decimals
+			  }
+			: undefined
+	);
+
+const toTitleCase = (str) =>
+	str
+		.replace(/_/g, " ")
+		.replace(/\b\w/g, (c) => c.toUpperCase());
+
+function resolveLabel(key) {
+	const parts = key.split("_");
+	const lastPart = parts[parts.length - 1];
+
+	const hasUnit = UNITS[lastPart] !== undefined;
+	const baseKey = hasUnit ? parts.slice(0, -1).join("_") : key;
+
+	const title = toTitleCase(baseKey);
+
+	return LABEL_OVERRIDES[title] ?? title;
+}
+
+function resolveUnit(key) {
+	const parts = key.split("_");
+	const lastPart = parts[parts.length - 1];
+	return UNITS[lastPart] ?? "";
+}
+
+function resolveDecimals(key) {
+	if (key.includes("pga")) return 3;
+	if (key.includes("distance")) return 1;
+	return 0;
+}
+
+/*
+ * ============================================================
+ * Badge Rendering
+ * ============================================================
+ */
+
+function renderBadge([label, value, unit = ""]) {
+	return `${label}: <span>${value}</span>${unit}`;
+}
+
+function updateBadges(badgeData, root = document) {
+	const badges = $all(".badges .badge", root);
+
+	badgeData.forEach((data, i) => {
+		if (!badges[i]) return;
+		setHTML(badges[i], renderBadge(data));
 	});
 }
 
-function updateCard(index, data) {
-	const cards = document.querySelectorAll('.grid .card');
-	const card = cards[index];
+/*
+ * ============================================================
+ * Card Rendering
+ * ============================================================
+ */
 
+function renderStandardCard({ title, main, note }) {
+	return `
+		<div class="card-title">${title}</div>
+		<div class="card-main">${main}</div>
+		<div class="card-note">${note ?? ""}</div>
+	`;
+}
+
+function renderProgressCard({
+	title,
+	main,
+	note,
+	progress,
+	progress_highlight = "other"
+}) {
+	return `
+		<div class="card-header">
+			<div class="card-title-left">${title}</div>
+			<div class="card-value-right">${main}</div>
+		</div>
+		<div class="progress-bar">
+			<div class="progress-fill"
+				style="
+					width: ${progress}%;
+					background: var(--progress-${progress_highlight});
+				">
+			</div>
+		</div>
+		<div class="card-note">${note ?? ""}</div>
+	`;
+}
+
+function renderCard(data) {
+	return data.progress !== undefined
+		? renderProgressCard(data)
+		: renderStandardCard(data);
+}
+
+function applyCardBorder(card, highlight) {
+	card.style.borderColor = highlight
+		? `var(--card-border-${highlight})`
+		: "";
+}
+
+function updateCard(card, data) {
 	if (!card) return;
 
-	card.style.borderColor = "";
-
-	// If this is a progress-style card
-	if (data.progress !== undefined) {
-		const highlightColor = data.highlight
-			? `var(--card-border-${data.highlight})`
-			: "";
-
-		if (highlightColor) {
-			card.style.borderColor = highlightColor;
-		}
-
-		card.innerHTML = `
-			<div class="card-header">
-				<div class="card-title-left">${data.title}</div>
-				<div class="card-value-right">${data.main}</div>
-			</div>
-			<div class="progress-bar">
-				<div class="progress-fill" 
-					 style="width: ${data.progress}%; 
-							background: var(--progress-${data.progress_highlight || 'other'});">
-				</div>
-			</div>
-			<div class="card-note">${data.note}</div>
-		`;
-
-	} else {
-		card.innerHTML = `
-			<div class="card-title">${data.title}</div>
-			<div class="card-main">${data.main}</div>
-			<div class="card-note">${data.note}</div>
-		`;
-	}
+	applyCardBorder(card, data.highlight);
+	setHTML(card, renderCard(data));
 }
 
-function updateSeverityCounts({ mild, severe, critical }) {
-	const gridItem = document.getElementById("severity-grid-item");
-
-	const titles = gridItem.querySelectorAll(".card-title-left");
-	const values = gridItem.querySelectorAll(".card-value-right");
-	const progressFills = gridItem.querySelectorAll(".progress-fill");
-
-	const total = mild + severe + critical;
-
-	const data = [
-		{ label: "Mild", value: mild },
-		{ label: "Severe", value: severe },
-		{ label: "Critical", value: critical }
-	];
-
-	data.forEach((item, index) => {
-		// Set number
-		values[index].textContent = item.value;
-
-		// Calculate percentage
-		const percentage = total > 0 ? ((item.value / total) * 100) : 0;
-
-		// Set progress bar width
-		progressFills[index].style.width = percentage.toFixed(1) + "%";
+function updateCards(cards, data, offset = 0) {
+	data.forEach((item, i) => {
+		updateCard(cards[i + offset], item);
 	});
 }
 
-// export { updateBadges, updateCard };
-
-var sample_data = {"inputs": { "population": 3168000, "magnitude": 6, "distance_km": 30, "depth_km": 10, "collapse_pct": 2 }, "seismic": { "hypocentral_distance_km":31.575306, "pga_g": 0.0311057823510973, "expected_injured": 2065 }, "medical": { "orthopedic_patients": 1797, "orthopedic_distribution": { "fractures": 1168, "crush_injury": 234, "compartment_syndrome": 137, "major_soft_tissue": 131, "crush_syndrome": 127 }, "severity": { "mild": 584, "severe": 949, "critical": 264 }, "resources": { "surgeries": 1436, "icu_beds": 311, "dialysis": 127 } } }
-
-function formatNumber(value, decimals = 0) {
-	return decimals > 0 ? value.toLocaleString("en-US", {
-		minimumFractionDigits: decimals,
-		maximumFractionDigits: decimals })
-		: value.toLocaleString("en-US");
+function updateHeaderCard(index, data) {
+	const cards = $all("#header-cards .card");
+	updateCard(cards[index], data);
 }
 
+/*
+ * ============================================================
+ * Severity Grid
+ * ============================================================
+ */
+
+function updateSeverityCounts({ mild, severe, critical }) {
+	const container = $id("severity-grid-item");
+	if (!container) return;
+
+	const values = $all(".card-value-right", container);
+	const progressFills = $all(".progress-fill", container);
+
+	const entries = [mild, severe, critical];
+	const total = mild + severe + critical;
+
+	entries.forEach((value, i) => {
+		if (!values[i] || !progressFills[i]) return;
+
+		values[i].textContent = value;
+
+		const percent = total > 0
+			? (value / total) * 100
+			: 0;
+
+		progressFills[i].style.width = `${percent.toFixed(1)}%`;
+	});
+}
+
+/*
+ * ============================================================
+ * Data Builders (Fully Dynamic)
+ * ============================================================
+ */
+
 function buildBadgesArray(data) {
-	const inputs = data?.inputs || {};
-	const result = [];
+	const inputs = data?.inputs ?? {};
 
-	if (inputs.magnitude != null) {
-	result.push(["M", String(inputs.magnitude)]);
-	}
-
-	if (inputs.population != null) {
-	result.push(["Population", formatNumber(inputs.population)]);
-	}
-
-	if (inputs.distance_km != null) {
-	result.push(["Distance", formatNumber(inputs.distance_km), "km"]);
-	}
-
-	if (inputs.depth_km != null) {
-	result.push(["Depth", formatNumber(inputs.depth_km), "km"]);
-	}
-
-	if (inputs.collapse_pct != null) {
-	result.push(["Collapse", formatNumber(inputs.collapse_pct), "%"]);
-	}
-
-	return result;
+	return Object.entries(inputs)
+		.filter(([, value]) => value != null)
+		.map(([key, value]) => [
+			resolveLabel(key),
+			formatNumber(value, resolveDecimals(key)),
+			resolveUnit(key)
+		]);
 }
 
 function buildSeismicArray(data) {
-	const seismic = data?.seismic || {};
-	const result = [];
+	const seismic = data?.seismic ?? {};
 
-	if (seismic.hypocentral_distance_km != null) {
-		result.push({
-			title: "Hypocentral Distance",
-			main: formatNumber(seismic.hypocentral_distance_km, 1),
-			note: "km"
-		});
-	}
+	return Object.entries(seismic)
+		.filter(([, value]) => value != null)
+		.map(([key, value]) => ({
+			title: resolveLabel(key),
+			main: formatNumber(value, resolveDecimals(key)),
+			note: resolveUnit(key)
+		}));
+}
 
-	if (seismic.pga_g != null) {
-		result.push({
-			title: "Computed PGA",
-			main: formatNumber(seismic.pga_g, 3),
-			note: "g"
-		});
-	}
+function buildDistribution(total, distribution = {}) {
+	if (!total) return [];
 
-	if (seismic.expected_injured != null) {
-		result.push({
-			title: "Expected Injured",
-			main: formatNumber(seismic.expected_injured),
-			note: "people"
-		});
-	}
-
-	return result;
+	return Object.entries(distribution)
+		.filter(([, value]) => value != null)
+		.map(([key, value]) => ({
+			title: resolveLabel(key),
+			main: formatNumber(value),
+			progress: Math.round((value / total) * 100),
+			progress_highlight: "other"
+		}));
 }
 
 function buildOrthopedicDistribution(data) {
-	const medical = data?.medical || {};
-	const total = medical.orthopedic_patients;
-	const distribution = medical.orthopedic_distribution || {};
-	return buildDistribution(total, distribution);
+	const medical = data?.medical ?? {};
+	return buildDistribution(
+		medical.orthopedic_patients,
+		medical.orthopedic_distribution
+	);
 }
 
-function buildDistribution(total, distribution) {
-	if (!total) return [];
+function buildOrthopedicPatientsCard(data) {
+	const medical = data?.medical ?? {};
+	const orthopedic = medical.orthopedic_patients ?? 0;
+	const expectedInjured = data?.seismic?.expected_injured ?? 0;
 
-	const result = [];
+	if (!orthopedic || !expectedInjured) return [];
 
-	Object.entries(distribution).forEach(([key, value]) => {
-		if (value == null) return;
-	
-		const percent = Math.round((value / total) * 100);
-	
-		// Convert snake_case to Title Case
-		const title = key
-			.replace(/_/g, " ")
-			.replace(/\b\w/g, c => c.toUpperCase());
-	
-		result.push({
-			title,
-			main: formatNumber(value),
+	const percent = Math.round((orthopedic / expectedInjured) * 100);
+
+	// Return a single card in array
+	return [{
+		title: "Orthopedic Patients",
+		main: formatNumber(orthopedic),
+		note: `${percent}% of injured`
+	}];
+}
+
+function buildResourceCards(data) {
+	const resources = data?.medical?.resources ?? {};
+	const expectedInjured = data?.seismic?.expected_injured ?? 0;
+
+	const cards = [];
+
+	if (resources.surgeries != null && expectedInjured > 0) {
+		const percent = Math.round((resources.surgeries / expectedInjured) * 100);
+		cards.push({
+			title: "Surgeries Required",
+			main: formatNumber(resources.surgeries),
+			note: `${percent}% of expected injured`,
 			progress: percent,
 			progress_highlight: "other"
 		});
-	});
+	}
 
-	return result;
+	if (resources.icu_beds != null && expectedInjured > 0) {
+		const percent = Math.round((resources.icu_beds / expectedInjured) * 100);
+		cards.push({
+			title: "ICU Beds Required",
+			main: formatNumber(resources.icu_beds),
+			note: `${percent}% of total capacity`,
+			progress: percent,
+			progress_highlight: "danger"
+		});
+	}
+
+	if (resources.dialysis != null && expectedInjured > 0) {
+		const percent = Math.round((resources.dialysis / expectedInjured) * 100);
+		cards.push({
+			title: "Dialysis Patients",
+			main: formatNumber(resources.dialysis),
+			note: `${percent}% of expected injured`,
+			progress: percent,
+			progress_highlight: "warning"
+		});
+	}
+
+	return cards;
 }
+
+function renderOrthopedicDistributionCards(data, containerId) {
+	//const container = $id(containerId);
+	const container = $id("breakdown-cards");
+	if (!container) return;
+
+	const cardsData = buildOrthopedicDistribution(data);
+
+	// Clear existing cards
+	setHTML(container, "");
+
+	// Render each card and append
+	cardsData.forEach(cardData => {
+		const card = document.createElement("div");
+		card.className = "card";
+		//card.style.height = "80px";
+		card.style.cssText = "flex: 0 0 auto; height: 80px;";
+		setHTML(card, renderCard(cardData));
+		container.appendChild(card);
+	});
+}
+
+/*
+ * ============================================================
+ * Orchestration
+ * ============================================================
+ */
 
 function updateAll() {
 	updateBadges(buildBadgesArray(sample_data));
-	var topCards = buildSeismicArray(sample_data);
-	updateCard(0, topCards[0]);
-	updateCard(1, topCards[1]);
-	updateCard(2, topCards[2]);
+
+	const headerCards = $all("#header-cards .card");
+	updateCards(headerCards, buildSeismicArray(sample_data), 0);
+	updateCards(headerCards, buildOrthopedicPatientsCard(sample_data), 3);
+
+	var resourcesCardData = buildResourceCards(sample_data);
+	resourcesCardData[0].progress_highlight = "warning";
+	resourcesCardData[0].highlight = "warning";
+	resourcesCardData[1].highlight = "danger";
+	resourcesCardData[1].percent = 75;
+	updateCards(headerCards, [ resourcesCardData[0], resourcesCardData[1] ], 4);
+
+	const breakdownCards = $all("#breakdown-cards .card");
+	renderOrthopedicDistributionCards(sample_data, breakdownCards);
+
+	resourcesCardData = buildResourceCards(sample_data);
+	const medicalResourcesCards = $all("#medical-resources .card");
+	resourcesCardData[0].progress_highlight = "other";
+	resourcesCardData[0].highlight = undefined;
+	resourcesCardData[0].note = undefined;
+	resourcesCardData[1].highlight = 'danger';
+	resourcesCardData[1].note = undefined;
+	resourcesCardData[2].highlight = 'warning';
+	resourcesCardData[2].note = undefined;
+	updateCards(medicalResourcesCards, resourcesCardData, 0);
 }
+
+/*
+ * ============================================================
+ * Required Unchanged Object
+ * ============================================================
+ */
+
+var sample_data = {
+	"inputs": {
+		"population": 3168000,
+		"magnitude": 6,
+		"distance_km": 30,
+		"depth_km": 10,
+		"collapse_pct": 2
+	},
+	"seismic": {
+		"hypocentral_distance_km": 31.575306,
+		"pga_g": 0.0311057823510973,
+		"expected_injured": 2065
+	},
+	"medical": {
+		"orthopedic_patients": 1797,
+		"orthopedic_distribution": {
+			"fractures": 1168,
+			"crush_injury": 234,
+			"compartment_syndrome": 137,
+			"major_soft_tissue": 131,
+			"crush_syndrome": 127
+		},
+		"severity": {
+			"mild": 584,
+			"severe": 949,
+			"critical": 264
+		},
+		"resources": {
+			"surgeries": 1436,
+			"icu_beds": 311,
+			"dialysis": 127
+		}
+	}
+};
