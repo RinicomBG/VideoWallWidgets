@@ -67,7 +67,7 @@ function resolveUnit(key) {
 
 function resolveDecimals(key) {
 	if (key.includes("pga")) return 3;
-	if (key.includes("distance")) return 1;
+	if (key.includes("distance")) return 0;
 	return 0;
 }
 
@@ -361,8 +361,8 @@ function updateAll() {
 
 var sample_data = {
 	"inputs": {
-		"population": 3168000,
 		"magnitude": 6,
+		"population": 3168000,
 		"distance_km": 30,
 		"depth_km": 10,
 		"collapse_pct": 2
