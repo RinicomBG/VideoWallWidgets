@@ -331,11 +331,16 @@ function updateAll() {
 	updateCards(headerCards, buildSeismicArray(sample_data), 0);
 	updateCards(headerCards, buildOrthopedicPatientsCard(sample_data), 3);
 
+	// These cards seem not to make much sense with relation to the others so
+	// they are overridden manually.
 	var resourcesCardData = buildResourceCards(sample_data);
 	resourcesCardData[0].progress_highlight = "warning";
 	resourcesCardData[0].highlight = "warning";
+	resourcesCardData[0].progress = undefined;
+	resourcesCardData[0].note = "initial phase";
 	resourcesCardData[1].highlight = "danger";
-	resourcesCardData[1].percent = 75;
+	resourcesCardData[1].progress = 75;
+	resourcesCardData[1].note = "75% of total capacity";
 	updateCards(headerCards, [ resourcesCardData[0], resourcesCardData[1] ], 4);
 
 	const breakdownCards = $all("#breakdown-cards .card");
