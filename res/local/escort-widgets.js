@@ -318,6 +318,41 @@ function renderOrthopedicDistributionCards(data, containerId) {
 	});
 }
 
+function updateSeverityGrid(data) {
+	const container = document.getElementById("severity-grid-item");
+	if (!container) return;
+
+	const titles = container.querySelectorAll(".card-title-left");
+	const values = container.querySelectorAll(".card-value-right");
+	const progressBars = container.querySelectorAll(".progress-fill");
+
+	data.forEach((item, index) => {
+		if (!titles[index] || !values[index] || !progressBars[index]) return;
+
+		// Update title
+		titles[index].textContent = item.title;
+
+		// Update value
+		values[index].textContent = item.main;
+
+		// Update progress width
+		progressBars[index].style.width = `${item.progress}%`;
+
+		// Update progress color
+		progressBars[index].style.background = getProgressColor(item.progress_highlight);
+	});
+}
+
+function getProgressColor(type) {
+	const colorMap = {
+		good: "var(--progress-good)",
+		warning: "var(--progress-warning)",
+		danger: "var(--progress-danger)"
+	};
+
+	return colorMap[type] || "var(--progress-good)";
+}
+
 /*
  * ============================================================
  * Orchestration
@@ -356,6 +391,12 @@ function updateAll() {
 	resourcesCardData[2].highlight = 'warning';
 	resourcesCardData[2].note = undefined;
 	updateCards(medicalResourcesCards, resourcesCardData, 0);
+
+	updateSeverityGrid([
+		{ title: "Mild", main: `${sample_data.medical.severity.mild}`, progress: 47, progress_highlight: "good" },
+		{ title: "Severe", main: `${sample_data.medical.severity.severe}`, progress: 67, progress_highlight: "warning" },
+		{ title: "Critical", main: `${sample_data.medical.severity.critical}`, progress: 32, progress_highlight: "danger" }
+	]);
 }
 
 /*
