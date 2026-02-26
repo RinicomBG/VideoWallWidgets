@@ -389,16 +389,16 @@ function getProgressColor(type) {
  * ============================================================
  */
 
-function updateAll() {
-	updateBadges(buildBadgesArray(sample_data));
+function updateAll(data) {
+	updateBadges(buildBadgesArray(data));
 
 	const headerCards = $all("#header-cards .card");
-	updateCards(headerCards, buildSeismicArray(sample_data), 0);
-	updateCards(headerCards, buildOrthopedicPatientsCard(sample_data), 3);
+	updateCards(headerCards, buildSeismicArray(data), 0);
+	updateCards(headerCards, buildOrthopedicPatientsCard(data), 3);
 
 	// These cards seem not to make much sense with relation to the others so
 	// they are overridden manually.
-	var resourcesCardData = buildResourceCards(sample_data);
+	var resourcesCardData = buildResourceCards(data);
 	resourcesCardData[0].progress_highlight = "warning";
 	resourcesCardData[0].highlight = "warning";
 	resourcesCardData[0].progress = undefined;
@@ -409,9 +409,9 @@ function updateAll() {
 	updateCards(headerCards, [ resourcesCardData[0], resourcesCardData[1] ], 4);
 
 	const breakdownCards = $all("#breakdown-cards .card");
-	renderOrthopedicDistributionCards(sample_data, breakdownCards);
+	renderOrthopedicDistributionCards(data, breakdownCards);
 
-	resourcesCardData = buildResourceCards(sample_data);
+	resourcesCardData = buildResourceCards(data);
 	const medicalResourcesCards = $all("#medical-resources .card");
 	resourcesCardData[0].progress_highlight = "other";
 	resourcesCardData[0].highlight = undefined;
@@ -422,7 +422,7 @@ function updateAll() {
 	resourcesCardData[2].note = undefined;
 	updateCards(medicalResourcesCards, resourcesCardData, 0);
 
-	updateSeverityGrid(buildSeverityGrid(sample_data));
+	updateSeverityGrid(buildSeverityGrid(data));
 }
 
 async function handleAnchorClick(event) {
@@ -437,16 +437,16 @@ async function handleAnchorClick(event) {
 			throw new Error(`HTTP error! Status: ${response.status}`);
 		}
 
-		const textData = await response.text(); // Get raw text
-		const jsonObject = JSON.parse(textData); // Convert to JS object
+		const textData = await response.text();
+		const jsonObject = JSON.parse(textData);
 
-		// jsonObject now contains the parsed JSON
-		console.log(jsonObject);
+		//console.log(jsonObject);
+		updateAll(jsonObject);
 
-		return jsonObject; // Optional: return for further use
+		return false;
 	} catch (error) {
 		console.error("Failed to fetch or parse JSON:", error);
-		throw error; // Fail as requested if malformed
+		throw error;
 	}
 }
 
