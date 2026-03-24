@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earthquake Impact Estimator</title>
+
+<style>
+	:root {
+		--bg-page: #081421;
+		--bg-section: #10283f;
+		--bg-card: #173a5c;
+		--text-main: #ffffff;
+		--text-secondary: #9bb3c9;
+		--badge-default: #163553;
+		--badge-blue: #1b4c7a;
+		--badge-orange: #4a2b12;
+		--badge-blue-text: #7ec8ff;
+		--badge-orange-text: #ff9d42;
+		--progress-track-alt: #163A24;
+		--progress-track: #2c4b70;
+		--progress-good: #1faa59;
+		--progress-warning: #c48a1d;
+		--progress-danger: #b6463a;
+		--progress-other: #1b7fc1;
+
+		--card-border-good: #1faa59;
+		--card-border-warning: #c48a1d;
+		--card-border-danger: #b6463a;
+		--card-border-none: #173a5c;
+		--card-border-other: #1b7fc1;
+	}
+
+	@font-face {
+		font-family: 'Inter';
+		src: url('res/inter/Inter-Regular.woff2') format('woff2');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+	
+	@font-face {
+		font-family: 'Inter';
+		src: url('res/inter/Inter-Bold.woff2') format('woff2');
+		font-weight: 700;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Inter-Display';
+		src: url('res/inter/InterDisplay-Regular.woff2') format('woff2');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+	
+	@font-face {
+		font-family: 'Inter-Display';
+		src: url('res/inter/InterDisplay-Bold.woff2') format('woff2');
+		font-weight: 700;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	body {
+		margin: 0;
+		min-height: 100vh;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 20px;
+		background: var(--bg-page);
+		font-family: Inter-Display, sans-serif;
+		color: var(--text-main);
+	}
+
+	a {
+		color: var(--text-main);
+	}
+
+	.container {
+		background: var(--bg-section);
+		padding: 24px;
+		border-radius: 20px;
+		width: 100%;
+		max-width: 1200px;
+		box-sizing: border-box;
+	}
+
+	.header {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 16px;
+		gap: 10px;
+	}
+
+	.title {
+		font-size: 26px;
+		font-weight: 600;
+		color: var(--text-main);
+	}
+
+	.badges {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.badge {
+		padding: 4px 10px;
+		border-radius: 999px;
+		font-size: 12px;
+		font-weight: 500;
+		background: var(--badge-default);
+		color: var(--text-secondary);
+		white-space: nowrap;
+	}
+
+	.badge span {
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--text-main);
+	}
+
+	.badge.blue {
+		background: var(--badge-blue);
+		color: var(--badge-blue-text);
+	}
+
+	.badge.orange {
+		background: var(--badge-orange);
+		color: var(--badge-orange-text);
+	}
+
+	.grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		justify-content: center;
+	}
+
+	.grid-section {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		/* gap: 12px; */
+		/* margin-top: 24px; */
+		padding: 0;
+	}
+	
+	.grid-item {
+		background: transparent;
+		padding: 16px;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		flex-wrap: wrap;
+		gap: 12px;
+	}
+	
+	.grid-item.big {
+		grid-column: span 2;
+	}
+	
+	@media (max-width: 800px) {
+		.grid-section {
+			grid-template-columns: 1fr;
+		}
+		.grid-item.big {
+			grid-column: span 1;
+		}
+	}
+
+	.card {
+		flex: 0 0 350px;
+		height: 120px;
+		background: var(--bg-card);
+		border-radius: 16px;
+		padding: 10px 14px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		box-sizing: border-box;
+		border-width: 5px;
+		border-style: solid;
+		border-color: var(--card-border-none);
+		cursor: pointer;
+	}
+
+	.card-wide {
+		background: var(--bg-card);
+		border-radius: 16px;
+		padding: 10px 14px;
+		border-width: 5px;
+		border-style: solid;
+		border-color: var(--card-border-none);
+		width: 100%;
+	}
+
+	.card-title {
+		font-size: 18px;
+		color: var(--text-secondary);
+		font-weight: 500;
+		margin-bottom: 4px;
+		text-align: center;
+	}
+
+	.card-main {
+		font-size: 36px;
+		font-weight: 700;
+		color: var(--text-main);
+		margin-bottom: 4px;
+		text-align: center;
+	}
+
+	.card-note {
+		font-size: 16px;
+		color: var(--text-secondary);
+		text-align: center;
+	}
+
+	/* Card header: title left, value right */
+	.card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 8px;
+	}
+
+	.card-title-left {
+		font-size: 18px;
+		color: var(--text-secondary);
+		font-weight: 500;
+	}
+
+	.card-title-left-major {
+		font-size: 24px;
+		color: var(--text-main);
+		font-weight: 700;
+	}
+
+	.card-value-right {
+		font-size: 24px;
+		font-weight: 700;
+		color: var(--text-main);
+	}
+
+	.card-paragraph-text {
+		margin: 10px;
+		font-size: 16px;
+		color: var(--text-secondary);
+		text-align: left;
+	}
+
+	.progress-bar {
+		width: 100%;
+		height: 10px;
+		background: var(--progress-track);
+		border-radius: 8px;
+		overflow: hidden;
+		margin-bottom: 4px;
+	}
+
+	.progress-fill {
+		height: 100%;
+		border-radius: 8px 0 0 8px;
+	}
+
+	@media (max-width: 800px) {
+		.card {
+			flex: 0 0 45%;
+		}
+	}
+
+	@media (max-width: 500px) {
+		.card {
+			flex: 0 0 100%;
+		}
+	}
+</style>
+
+<script>
+
+var drawALine = function() {
+const svge = document.querySelector("svg");
+const width = svg.clientWidth;
+const height = svg.clientHeight;
+svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+console.log("width and height", width, height);
+const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+line.setAttribute("x1", 0);
+line.setAttribute("y1", 0);
+line.setAttribute("x2", width);
+line.setAttribute("y2", height);
+line.setAttribute("stroke", "black");
+svg.appendChild(line);
+}
+
+</script>
+
+<script src="res/local/escort-widgets.js"></script>
+
+<script>
+
+	const onloadedfunction = function() {
+		// render the charts on load.
+		render_a_chart('chart-0', undefined);
+		render_a_chart('chart-1', undefined);
+		render_a_chart('chart-2', undefined);
+		render_a_chart('chart-3', undefined);
+	}
+
+document.addEventListener('DOMContentLoaded', onloadedfunction);
+
+</script>
+</head>
+
+<body>
+
+<div class="container">
+
+	<div class="header">
+		<div class="title">Healthcare and Demographic Pressure - Italy</div>
+		<div class="badges">
+			<div class="badge">M: <span>6</span></div>
+		</div>
+	</div>
+
+	<div class="grid-section">
+		<div class="grid-item">
+			<div class="card-wide">
+				<div class="card-header">
+					<div class="card-title-left-major">Population Over Time</div>
+					<div class="card-value-right">-294M</div>
+				</div>
+				<svg width="100%" height="400" viewBox="0 0 150 150" id="chart-0">
+<circle cx="75" cy="75" r="60" fill="#1b4c7a" />
+				</svg>
+				<div class="card-paragraph-text">
+					Projected evolution of the total population under the UN medium variant scenario. The declining trend reflects long-term demographic contraction driven by low fertility and aging.
+				</div>
+			</div>
+		</div>
+		<div class="grid-item">
+			<div class="card-wide">
+				<div class="card-header">
+					<div class="card-title-left-major">Population Over Time</div>
+					<div class="card-value-right">-294M</div>
+				</div>
+				<svg width="100%" height="400" viewBox="0 0 150 150" id="chart-1">
+<circle cx="75" cy="75" r="60" fill="#1b4c7a" />
+				</svg>
+				<div class="card-paragraph-text">
+					Projected evolution of the total population under the UN medium variant scenario. The declining trend reflects long-term demographic contraction driven by low fertility and aging.
+				</div>
+			</div>
+		</div>
+
+		<div class="grid-item">
+			<div class="card-wide">
+				<div class="card-header">
+					<div class="card-title-left-major">Population Over Time</div>
+					<div class="card-value-right">-294M</div>
+				</div>
+				<svg width="100%" height="400" viewBox="0 0 150 150" id="chart-2">
+<circle cx="75" cy="75" r="60" fill="#1b4c7a" />
+				</svg>
+				<div class="card-paragraph-text">
+					Projected evolution of the total population under the UN medium variant scenario. The declining trend reflects long-term demographic contraction driven by low fertility and aging.
+				</div>
+			</div>
+		</div>
+		<div class="grid-item">
+			<div class="card-wide">
+				<div class="card-header">
+					<div class="card-title-left-major">Population Over Time</div>
+					<div class="card-value-right">-294M</div>
+				</div>
+				<svg width="100%" height="400" viewBox="0 0 150 150" id="chart-3">
+<circle cx="75" cy="75" r="60" fill="#1b4c7a" />
+				</svg>
+				<div class="card-paragraph-text">
+					Projected evolution of the total population under the UN medium variant scenario. The declining trend reflects long-term demographic contraction driven by low fertility and aging.
+				</div>
+			</div>
+		</div>
+
+		<div class="grid-item big">
+		</div>
+	</div>
+</div>
+
+<script>
+document.querySelectorAll(".card").forEach(card => {
+	card.addEventListener("click", function() {
+		var titleQs = this.querySelector(".card-title");
+		if (titleQs === null) {
+			titleQs = this.querySelector('.card-header .card-title-left');
+		}
+		console.log("Clicked:", titleQs.innerText);
+	});
+});
+
+</script>
+
+</body>
+</html>
+
+

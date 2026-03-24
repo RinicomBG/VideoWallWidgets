@@ -490,3 +490,235 @@ var sample_data = {
 		}
 	}
 };
+
+/*
+ * ============================================================
+ * Drawing a Chart
+ * ============================================================
+ */
+const render_a_chart = function(element_id, data) {
+	const colors = (function() {
+		var root = document.documentElement;
+		var line = '#0074d9';
+		var axis = '#111111';
+		axis = getComputedStyle(root).getPropertyValue('--text-secondary').trim();
+		var ticks = '#555555';
+		ticks = getComputedStyle(root).getPropertyValue('--text-secondary').trim();
+		var background = 'transparent';
+		return {
+			line: line,
+			axis: axis,
+			ticks: ticks,
+			background: background
+		};
+	})();
+
+	// TODO: Use some data supplied in the function signature
+	data = Array.from({length: 21}, (_, i) => ({
+		x: i,
+		y: Math.floor(Math.random() * 100)
+	}));
+
+	const svg = document.getElementById(element_id);
+
+	const width = svg.clientWidth;
+	const height = svg.clientHeight;
+
+	svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+	while (svg.firstChild) {
+		svg.removeChild(svg.firstChild);
+	}
+
+	const chartConfig = {
+		width: width,
+		height: height,
+		margin: { top: 30, right: 30, bottom: 70, left: 50 },
+		tickLength: 10
+	};
+
+	var scale = function(value, domainMin, domainMax, rangeMin, rangeMax) {
+		return ((value - domainMin) / (domainMax - domainMin)) * (rangeMax - rangeMin) + rangeMin;
+	}
+
+	var drawAxes = function() {
+		// Remove existing axes group if present
+		let oldAxes = svg.querySelector('#axes');
+		if (oldAxes) svg.removeChild(oldAxes);
+
+		const axesGroup = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+		axesGroup.id = 'axes';
+
+		const { width, height, margin, tickLength } = chartConfig;
+
+		// X axis line
+		const xAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+		xAxis.setAttribute('x1', margin.left);
+		xAxis.setAttribute('y1', height - margin.bottom);
+		xAxis.setAttribute('x2', width - margin.right);
+		xAxis.setAttribute('y2', height - margin.bottom);
+		xAxis.setAttribute('stroke', colors.axis);
+		xAxis.setAttribute('stroke-width', 2);
+		axesGroup.appendChild(xAxis);
+
+		// Y axis line
+		const yAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+		yAxis.setAttribute('x1', margin.left);
+		yAxis.setAttribute('y1', margin.top);
+		yAxis.setAttribute('x2', margin.left);
+		yAxis.setAttribute('y2', height - margin.bottom);
+		yAxis.setAttribute('stroke', colors.axis);
+		yAxis.setAttribute('stroke-width', 2);
+		axesGroup.appendChild(yAxis);
+
+		// Ticks
+		const maxX = Math.max(...data.map(d => d.x));
+		const maxY = Math.max(...data.map(d => d.y));
+
+		for (let i = 0; i <= maxX; i += 1) {
+			const x = scale(i, 0, maxX, margin.left, width - margin.right);
+			const y = height - margin.bottom;
+		
+			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+			tick.setAttribute('x1', x);
+			tick.setAttribute('y1', y);
+			tick.setAttribute('x2', x);
+			tick.setAttribute('y2', y + tickLength);
+			tick.setAttribute('stroke', colors.ticks);
+			axesGroup.appendChild(tick);
+		
+			const label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+			label.textContent = (i * 1000);
+			label.setAttribute('x', x);
+			label.setAttribute('y', y + tickLength + 5);
+		
+			// Rotate -45 degrees around the label position
+			label.setAttribute('transform', `rotate(-45 ${x} ${y + tickLength + 5})`);
+		
+			// Align text so the top-right corner is near the tick
+			label.setAttribute('text-anchor', 'end');
+			label.setAttribute('dominant-baseline', 'hanging');
+		
+			label.setAttribute('fill', colors.ticks);
+			label.setAttribute('font-size', '14');
+		
+			axesGroup.appendChild(label);
+		}
+		
+		// Add X axis label
+		const xAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+		xAxisLabel.textContent = 'Time'; // change this to whatever your X axis represents
+		xAxisLabel.setAttribute('x', (margin.left + width - margin.right) / 2); // center horizontally
+		xAxisLabel.setAttribute('y', height - margin.bottom + 60); // below ticks
+		xAxisLabel.setAttribute('text-anchor', 'middle'); // center alignment
+		xAxisLabel.setAttribute('dominant-baseline', 'middle');
+		xAxisLabel.setAttribute('fill', colors.axis);
+		xAxisLabel.setAttribute('font-size', '16');
+		axesGroup.appendChild(xAxisLabel);
+		
+		for (let i = 0; i <= maxY; i += 10) {
+			const y = scale(i, 0, maxY, height - margin.bottom, margin.top);
+		
+			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+			tick.setAttribute('x1', margin.left - tickLength);
+			tick.setAttribute('y1', y);
+			tick.setAttribute('x2', margin.left);
+			tick.setAttribute('y2', y);
+			tick.setAttribute('stroke', colors.ticks);
+			axesGroup.appendChild(tick);
+		
+			const label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+			label.textContent = i; // show numeric value
+			label.setAttribute('x', margin.left - tickLength - 5); // place left of tick
+			label.setAttribute('y', y);
+			label.setAttribute('text-anchor', 'end'); // right-aligned
+			label.setAttribute('dominant-baseline', 'middle'); // vertically centered
+			label.setAttribute('fill', colors.ticks);
+			label.setAttribute('font-size', '14');
+			axesGroup.appendChild(label);
+		}
+		
+		// Add Y axis label
+		const yAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+		yAxisLabel.textContent = 'Value';
+		yAxisLabel.setAttribute('x', margin.left - 40); // offset from axis
+		yAxisLabel.setAttribute('y', height / 2); // center vertically
+		yAxisLabel.setAttribute('text-anchor', 'middle');
+		yAxisLabel.setAttribute('dominant-baseline', 'middle');
+		yAxisLabel.setAttribute('fill', colors.axis);
+		yAxisLabel.setAttribute('font-size', '16');
+		yAxisLabel.setAttribute('transform', `rotate(-90 ${margin.left - 40} ${height / 2})`); // rotate label vertically
+		axesGroup.appendChild(yAxisLabel);
+
+/*
+		for (let i = 0; i <= maxX; i += 1) {
+			const x = scale(i, 0, maxX, margin.left, width - margin.right);
+			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+			tick.setAttribute('x1', x);
+			tick.setAttribute('y1', height - margin.bottom);
+			tick.setAttribute('x2', x);
+			tick.setAttribute('y2', height - margin.bottom + tickLength);
+			tick.setAttribute('stroke', colors.ticks);
+			axesGroup.appendChild(tick);
+		}
+
+		for (let i = 0; i <= maxY; i += 10) {
+			const y = scale(i, 0, maxY, height - margin.bottom, margin.top);
+			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+			tick.setAttribute('x1', margin.left - tickLength);
+			tick.setAttribute('y1', y);
+			tick.setAttribute('x2', margin.left);
+			tick.setAttribute('y2', y);
+			tick.setAttribute('stroke', colors.ticks);
+			axesGroup.appendChild(tick);
+		}
+*/
+
+		svg.appendChild(axesGroup);
+	}
+
+	var drawLine = function() {
+		// Remove old line if present
+		let oldLine = svg.querySelector('#line');
+		if (oldLine) svg.removeChild(oldLine);
+
+		const lineGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		lineGroup.id = 'line';
+
+		const path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+
+		const { width, height, margin } = chartConfig;
+		const maxX = Math.max(...data.map(d => d.x));
+		const maxY = Math.max(...data.map(d => d.y));
+
+		let d = '';
+		data.forEach((point, index) => {
+			const x = scale(point.x, 0, maxX, margin.left, width - margin.right);
+			const y = scale(point.y, 0, maxY, height - margin.bottom, margin.top);
+			d += (index === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
+		});
+
+		path.setAttribute('d', d);
+		path.setAttribute('fill', 'none');
+		path.setAttribute('stroke', colors.line);
+		path.setAttribute('stroke-width', 2);
+
+		lineGroup.appendChild(path);
+		svg.appendChild(lineGroup);
+	}
+
+	const removeTicks = function() {
+		const axesGroup = svg.querySelector('#axes');
+		if (!axesGroup) return;
+		const ticks = axesGroup.querySelectorAll('line');
+		ticks.forEach((tick, index) => {
+			// Keep the first two lines (x & y axes) and remove the rest
+			if (index > 1) axesGroup.removeChild(tick);
+		});
+	}
+
+	drawAxes();
+	drawLine();
+};
+
+
+
