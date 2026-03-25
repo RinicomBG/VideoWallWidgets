@@ -1,0 +1,390 @@
+{
+  "country": "Italy",
+  "series": [
+    {
+      "year": 2024,
+      "total_population": 59342867.0,
+      "elderly_population": 14613048.5
+    },
+    {
+      "year": 2025,
+      "total_population": 59146260.0,
+      "elderly_population": 14844610.0
+    },
+    {
+      "year": 2026,
+      "total_population": 58926166.5,
+      "elderly_population": 15084610.5
+    },
+    {
+      "year": 2027,
+      "total_population": 58688779.0,
+      "elderly_population": 15337453.0
+    },
+    {
+      "year": 2028,
+      "total_population": 58445833.0,
+      "elderly_population": 15620318.0
+    },
+    {
+      "year": 2029,
+      "total_population": 58201026.0,
+      "elderly_population": 15923337.0
+    },
+    {
+      "year": 2030,
+      "total_population": 57946072.0,
+      "elderly_population": 16242092.5
+    },
+    {
+      "year": 2031,
+      "total_population": 57680120.0,
+      "elderly_population": 16555884.0
+    },
+    {
+      "year": 2032,
+      "total_population": 57416501.0,
+      "elderly_population": 16855557.5
+    },
+    {
+      "year": 2033,
+      "total_population": 57156447.5,
+      "elderly_population": 17154869.0
+    },
+    {
+      "year": 2034,
+      "total_population": 56890916.5,
+      "elderly_population": 17440874.5
+    },
+    {
+      "year": 2035,
+      "total_population": 56620005.5,
+      "elderly_population": 17709027.5
+    },
+    {
+      "year": 2036,
+      "total_population": 56348694.0,
+      "elderly_population": 17974048.5
+    },
+    {
+      "year": 2037,
+      "total_population": 56074676.0,
+      "elderly_population": 18229241.5
+    },
+    {
+      "year": 2038,
+      "total_population": 55796258.0,
+      "elderly_population": 18468420.5
+    },
+    {
+      "year": 2039,
+      "total_population": 55511313.5,
+      "elderly_population": 18694947.5
+    },
+    {
+      "year": 2040,
+      "total_population": 55221167.5,
+      "elderly_population": 18901072.0
+    },
+    {
+      "year": 2041,
+      "total_population": 54931947.0,
+      "elderly_population": 19071401.0
+    },
+    {
+      "year": 2042,
+      "total_population": 54635957.5,
+      "elderly_population": 19201258.0
+    },
+    {
+      "year": 2043,
+      "total_population": 54323772.0,
+      "elderly_population": 19290734.5
+    },
+    {
+      "year": 2044,
+      "total_population": 54004348.0,
+      "elderly_population": 19342159.5
+    },
+    {
+      "year": 2045,
+      "total_population": 53680470.5,
+      "elderly_population": 19362393.5
+    },
+    {
+      "year": 2046,
+      "total_population": 53346081.5,
+      "elderly_population": 19362302.0
+    },
+    {
+      "year": 2047,
+      "total_population": 52998855.0,
+      "elderly_population": 19341444.0
+    },
+    {
+      "year": 2048,
+      "total_population": 52640785.0,
+      "elderly_population": 19290008.5
+    },
+    {
+      "year": 2049,
+      "total_population": 52273385.0,
+      "elderly_population": 19212315.5
+    },
+    {
+      "year": 2050,
+      "total_population": 51891098.5,
+      "elderly_population": 19110465.0
+    },
+    {
+      "year": 2051,
+      "total_population": 51499509.0,
+      "elderly_population": 18986998.5
+    },
+    {
+      "year": 2052,
+      "total_population": 51102076.5,
+      "elderly_population": 18842491.0
+    },
+    {
+      "year": 2053,
+      "total_population": 50692374.0,
+      "elderly_population": 18704702.0
+    },
+    {
+      "year": 2054,
+      "total_population": 50271519.0,
+      "elderly_population": 18574193.0
+    },
+    {
+      "year": 2055,
+      "total_population": 49842494.0,
+      "elderly_population": 18431302.0
+    },
+    {
+      "year": 2056,
+      "total_population": 49401283.0,
+      "elderly_population": 18278790.0
+    },
+    {
+      "year": 2057,
+      "total_population": 48952794.0,
+      "elderly_population": 18112860.5
+    },
+    {
+      "year": 2058,
+      "total_population": 48499940.5,
+      "elderly_population": 17925782.5
+    },
+    {
+      "year": 2059,
+      "total_population": 48042231.5,
+      "elderly_population": 17714172.0
+    },
+    {
+      "year": 2060,
+      "total_population": 47584459.5,
+      "elderly_population": 17493401.0
+    },
+    {
+      "year": 2061,
+      "total_population": 47127112.5,
+      "elderly_population": 17270467.0
+    },
+    {
+      "year": 2062,
+      "total_population": 46670716.5,
+      "elderly_population": 17048154.5
+    },
+    {
+      "year": 2063,
+      "total_population": 46222613.5,
+      "elderly_population": 16831950.0
+    },
+    {
+      "year": 2064,
+      "total_population": 45784538.5,
+      "elderly_population": 16623786.0
+    },
+    {
+      "year": 2065,
+      "total_population": 45352681.5,
+      "elderly_population": 16424750.0
+    },
+    {
+      "year": 2066,
+      "total_population": 44931309.0,
+      "elderly_population": 16234471.0
+    },
+    {
+      "year": 2067,
+      "total_population": 44524299.5,
+      "elderly_population": 16052109.0
+    },
+    {
+      "year": 2068,
+      "total_population": 44126166.0,
+      "elderly_population": 15888943.0
+    },
+    {
+      "year": 2069,
+      "total_population": 43734707.5,
+      "elderly_population": 15752418.5
+    },
+    {
+      "year": 2070,
+      "total_population": 43353331.5,
+      "elderly_population": 15637378.0
+    },
+    {
+      "year": 2071,
+      "total_population": 42986002.0,
+      "elderly_population": 15541410.5
+    },
+    {
+      "year": 2072,
+      "total_population": 42631502.5,
+      "elderly_population": 15463842.0
+    },
+    {
+      "year": 2073,
+      "total_population": 42288844.0,
+      "elderly_population": 15400449.5
+    },
+    {
+      "year": 2074,
+      "total_population": 41958150.5,
+      "elderly_population": 15347249.0
+    },
+    {
+      "year": 2075,
+      "total_population": 41641716.5,
+      "elderly_population": 15299288.5
+    },
+    {
+      "year": 2076,
+      "total_population": 41341936.0,
+      "elderly_population": 15251562.0
+    },
+    {
+      "year": 2077,
+      "total_population": 41053533.0,
+      "elderly_population": 15203786.0
+    },
+    {
+      "year": 2078,
+      "total_population": 40772236.0,
+      "elderly_population": 15152327.5
+    },
+    {
+      "year": 2079,
+      "total_population": 40495655.5,
+      "elderly_population": 15096810.5
+    },
+    {
+      "year": 2080,
+      "total_population": 40225869.5,
+      "elderly_population": 15040569.0
+    },
+    {
+      "year": 2081,
+      "total_population": 39963231.5,
+      "elderly_population": 14982675.5
+    },
+    {
+      "year": 2082,
+      "total_population": 39704905.0,
+      "elderly_population": 14921964.0
+    },
+    {
+      "year": 2083,
+      "total_population": 39452309.0,
+      "elderly_population": 14851601.5
+    },
+    {
+      "year": 2084,
+      "total_population": 39203214.0,
+      "elderly_population": 14768727.5
+    },
+    {
+      "year": 2085,
+      "total_population": 38955405.5,
+      "elderly_population": 14677935.0
+    },
+    {
+      "year": 2086,
+      "total_population": 38713095.0,
+      "elderly_population": 14588027.0
+    },
+    {
+      "year": 2087,
+      "total_population": 38472531.0,
+      "elderly_population": 14498391.0
+    },
+    {
+      "year": 2088,
+      "total_population": 38231433.0,
+      "elderly_population": 14400808.0
+    },
+    {
+      "year": 2089,
+      "total_population": 37989932.5,
+      "elderly_population": 14299174.0
+    },
+    {
+      "year": 2090,
+      "total_population": 37748595.0,
+      "elderly_population": 14199713.5
+    },
+    {
+      "year": 2091,
+      "total_population": 37511052.0,
+      "elderly_population": 14101184.0
+    },
+    {
+      "year": 2092,
+      "total_population": 37272506.0,
+      "elderly_population": 14003555.0
+    },
+    {
+      "year": 2093,
+      "total_population": 37035406.5,
+      "elderly_population": 13907094.0
+    },
+    {
+      "year": 2094,
+      "total_population": 36801813.5,
+      "elderly_population": 13811326.0
+    },
+    {
+      "year": 2095,
+      "total_population": 36565447.5,
+      "elderly_population": 13715919.0
+    },
+    {
+      "year": 2096,
+      "total_population": 36327293.5,
+      "elderly_population": 13620790.0
+    },
+    {
+      "year": 2097,
+      "total_population": 36088272.5,
+      "elderly_population": 13526342.0
+    },
+    {
+      "year": 2098,
+      "total_population": 35851674.0,
+      "elderly_population": 13433332.5
+    },
+    {
+      "year": 2099,
+      "total_population": 35615719.5,
+      "elderly_population": 13342147.0
+    },
+    {
+      "year": 2100,
+      "total_population": 35376821.5,
+      "elderly_population": 13252663.0
+    }
+  ]
+}

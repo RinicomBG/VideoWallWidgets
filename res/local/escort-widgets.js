@@ -358,17 +358,9 @@ function updateSeverityGrid(data) {
 
 	data.forEach((item, index) => {
 		if (!titles[index] || !values[index] || !progressBars[index]) return;
-
-		// Update title
 		titles[index].textContent = item.title;
-
-		// Update value
 		values[index].textContent = item.main;
-
-		// Update progress width
 		progressBars[index].style.width = `${item.progress}%`;
-
-		// Update progress color
 		progressBars[index].style.background = getProgressColor(item.progress_highlight);
 	});
 }
@@ -426,7 +418,7 @@ function updateAll(data) {
 }
 
 async function handleAnchorClick(event) {
-	event.preventDefault(); // Stop normal link navigation
+	event.preventDefault();
 
 	const url = event.currentTarget.href;
 
@@ -444,6 +436,29 @@ async function handleAnchorClick(event) {
 		updateAll(jsonObject);
 
 		return false;
+	} catch (error) {
+		console.error("Failed to fetch or parse JSON:", error);
+		throw error;
+	}
+}
+
+async function handleChartDataAnchorClick(event) {
+	console.log('logging');
+	event.preventDefault();
+
+	const url = event.currentTarget.href;
+	try {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(`HTTP error! Status: ${response.status}`);
+		}
+		const textData = await response.text();
+		const jsonObject = JSON.parse(textData);
+		console.log("raw chart data", jsonObject);
+		//const chartData = chart_map_series(jsonObject.baseline_reference_series, 'total_population');
+		const chartData = chart_map_series(jsonObject, 'total_population');
+		console.log("chart data", chartData);
+		render_a_chart('chart-0', chartData);
 	} catch (error) {
 		console.error("Failed to fetch or parse JSON:", error);
 		throw error;
@@ -491,76 +506,79 @@ var sample_data = {
 	}
 };
 
-/*
- * ============================================================
- * Drawing a Chart
- * ============================================================
- */
+const chart_map_series = function(data, key) {
+	return data.series.map(item => ({
+		x: item.year,
+		y: item[key]
+	}));
+}
+
+// Usage:
+//const total = chart_map_series(data, "total_population");
+//const elderly = chart_map_series(data, "elderly_population");
+
 const render_a_chart = function(element_id, data) {
-	const colors = (function() {
-		var root = document.documentElement;
-		var line = '#0074d9';
-		var axis = '#111111';
-		axis = getComputedStyle(root).getPropertyValue('--text-secondary').trim();
-		var ticks = '#555555';
-		ticks = getComputedStyle(root).getPropertyValue('--text-secondary').trim();
-		var background = 'transparent';
+	const colors = (() => {
+		const root = document.documentElement;
+		const axis = getComputedStyle(root).getPropertyValue('--text-secondary').trim();
+		const ticks = axis;
 		return {
-			line: line,
+			line: '#0074d9',
 			axis: axis,
 			ticks: ticks,
-			background: background
+			background: 'transparent'
 		};
 	})();
 
-	// TODO: Use some data supplied in the function signature
-	data = Array.from({length: 21}, (_, i) => ({
-		x: i,
-		y: Math.floor(Math.random() * 100)
-	}));
-
 	const svg = document.getElementById(element_id);
-
 	const width = svg.clientWidth;
 	const height = svg.clientHeight;
 
 	svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-	while (svg.firstChild) {
-		svg.removeChild(svg.firstChild);
-	}
+	while (svg.firstChild) svg.removeChild(svg.firstChild);
 
 	const chartConfig = {
-		width: width,
-		height: height,
-		margin: { top: 30, right: 30, bottom: 70, left: 50 },
+		width, height,
+		margin: { top: 30, right: 30, bottom: 70, left: 60 },
 		tickLength: 10
 	};
 
-	var scale = function(value, domainMin, domainMax, rangeMin, rangeMax) {
-		return ((value - domainMin) / (domainMax - domainMin)) * (rangeMax - rangeMin) + rangeMin;
-	}
+	const scale = (value, domainMin, domainMax, rangeMin, rangeMax) =>
+		((value - domainMin) / (domainMax - domainMin)) * (rangeMax - rangeMin) + rangeMin;
 
-	var drawAxes = function() {
-		// Remove existing axes group if present
+	const niceNumber = (range) => {
+		const exponent = Math.floor(Math.log10(range));
+		const fraction = range / Math.pow(10, exponent);
+		let niceFraction;
+		if (fraction <= 1) niceFraction = 1;
+		else if (fraction <= 2) niceFraction = 2;
+		else if (fraction <= 5) niceFraction = 5;
+		else niceFraction = 10;
+		return niceFraction * Math.pow(10, exponent);
+	};
+
+	// Helper to format large numbers
+	const formatNumber = (num) => {
+		if (Math.abs(num) >= 1_000_000_000) return (num / 1_000_000_000) + "B";
+		if (Math.abs(num) >= 1_000_000) return (num / 1_000_000) + "M";
+		if (Math.abs(num) >= 1_000) return (num / 1_000) + "K";
+		return num;
+	};
+
+	const drawAxes = () => {
 		let oldAxes = svg.querySelector('#axes');
 		if (oldAxes) svg.removeChild(oldAxes);
-
 		const axesGroup = document.createElementNS("http://www.w3.org/2000/svg", 'g');
 		axesGroup.id = 'axes';
 
 		const { width, height, margin, tickLength } = chartConfig;
 
-		// X axis line
-		const xAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-		xAxis.setAttribute('x1', margin.left);
-		xAxis.setAttribute('y1', height - margin.bottom);
-		xAxis.setAttribute('x2', width - margin.right);
-		xAxis.setAttribute('y2', height - margin.bottom);
-		xAxis.setAttribute('stroke', colors.axis);
-		xAxis.setAttribute('stroke-width', 2);
-		axesGroup.appendChild(xAxis);
+		const minX = Math.min(...data.map(d => d.x));
+		const maxX = Math.max(...data.map(d => d.x));
+		const minY = Math.min(...data.map(d => d.y));
+		const maxY = Math.max(...data.map(d => d.y));
 
-		// Y axis line
+		// Y-axis line
 		const yAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
 		yAxis.setAttribute('x1', margin.left);
 		yAxis.setAttribute('y1', margin.top);
@@ -570,14 +588,23 @@ const render_a_chart = function(element_id, data) {
 		yAxis.setAttribute('stroke-width', 2);
 		axesGroup.appendChild(yAxis);
 
-		// Ticks
-		const maxX = Math.max(...data.map(d => d.x));
-		const maxY = Math.max(...data.map(d => d.y));
+		// X-axis line
+		const xAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+		xAxis.setAttribute('x1', margin.left);
+		xAxis.setAttribute('y1', height - margin.bottom);
+		xAxis.setAttribute('x2', width - margin.right);
+		xAxis.setAttribute('y2', height - margin.bottom);
+		xAxis.setAttribute('stroke', colors.axis);
+		xAxis.setAttribute('stroke-width', 2);
+		axesGroup.appendChild(xAxis);
 
-		for (let i = 0; i <= maxX; i += 1) {
-			const x = scale(i, 0, maxX, margin.left, width - margin.right);
+		// X ticks and labels
+		const xRange = maxX - minX;
+		const xStep = niceNumber(xRange / 8);
+		for (let i = Math.ceil(minX / xStep) * xStep; i <= maxX; i += xStep) {
+			const x = scale(i, minX, maxX, margin.left, width - margin.right);
 			const y = height - margin.bottom;
-		
+
 			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
 			tick.setAttribute('x1', x);
 			tick.setAttribute('y1', y);
@@ -585,115 +612,86 @@ const render_a_chart = function(element_id, data) {
 			tick.setAttribute('y2', y + tickLength);
 			tick.setAttribute('stroke', colors.ticks);
 			axesGroup.appendChild(tick);
-		
+
 			const label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-			label.textContent = (i * 1000);
+			label.textContent = i;
 			label.setAttribute('x', x);
 			label.setAttribute('y', y + tickLength + 5);
-		
-			// Rotate -45 degrees around the label position
 			label.setAttribute('transform', `rotate(-45 ${x} ${y + tickLength + 5})`);
-		
-			// Align text so the top-right corner is near the tick
 			label.setAttribute('text-anchor', 'end');
 			label.setAttribute('dominant-baseline', 'hanging');
-		
 			label.setAttribute('fill', colors.ticks);
 			label.setAttribute('font-size', '14');
-		
 			axesGroup.appendChild(label);
 		}
-		
-		// Add X axis label
+
+		// Y ticks and labels
+		const yRange = maxY - minY;
+		const yStep = niceNumber(yRange / 8);
+		for (let i = Math.ceil(minY / yStep) * yStep; i <= maxY; i += yStep) {
+			const y = scale(i, minY, maxY, height - margin.bottom, margin.top);
+
+			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+			tick.setAttribute('x1', margin.left - tickLength);
+			tick.setAttribute('y1', y);
+			tick.setAttribute('x2', margin.left);
+			tick.setAttribute('y2', y);
+			tick.setAttribute('stroke', colors.ticks);
+			axesGroup.appendChild(tick);
+
+			const label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+			label.textContent = formatNumber(i);
+			label.setAttribute('x', margin.left - tickLength - 5);
+			label.setAttribute('y', y);
+			label.setAttribute('text-anchor', 'end');
+			label.setAttribute('dominant-baseline', 'middle');
+			label.setAttribute('fill', colors.ticks);
+			label.setAttribute('font-size', '14');
+			axesGroup.appendChild(label);
+		}
+
+		// Axis labels
 		const xAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-		xAxisLabel.textContent = 'Time'; // change this to whatever your X axis represents
-		xAxisLabel.setAttribute('x', (margin.left + width - margin.right) / 2); // center horizontally
-		xAxisLabel.setAttribute('y', height - margin.bottom + 60); // below ticks
-		xAxisLabel.setAttribute('text-anchor', 'middle'); // center alignment
+		xAxisLabel.textContent = 'Time';
+		xAxisLabel.setAttribute('x', (margin.left + width - margin.right) / 2);
+		xAxisLabel.setAttribute('y', height - margin.bottom + 50);
+		xAxisLabel.setAttribute('text-anchor', 'middle');
 		xAxisLabel.setAttribute('dominant-baseline', 'middle');
 		xAxisLabel.setAttribute('fill', colors.axis);
 		xAxisLabel.setAttribute('font-size', '16');
 		axesGroup.appendChild(xAxisLabel);
-		
-		for (let i = 0; i <= maxY; i += 10) {
-			const y = scale(i, 0, maxY, height - margin.bottom, margin.top);
-		
-			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-			tick.setAttribute('x1', margin.left - tickLength);
-			tick.setAttribute('y1', y);
-			tick.setAttribute('x2', margin.left);
-			tick.setAttribute('y2', y);
-			tick.setAttribute('stroke', colors.ticks);
-			axesGroup.appendChild(tick);
-		
-			const label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-			label.textContent = i; // show numeric value
-			label.setAttribute('x', margin.left - tickLength - 5); // place left of tick
-			label.setAttribute('y', y);
-			label.setAttribute('text-anchor', 'end'); // right-aligned
-			label.setAttribute('dominant-baseline', 'middle'); // vertically centered
-			label.setAttribute('fill', colors.ticks);
-			label.setAttribute('font-size', '14');
-			axesGroup.appendChild(label);
-		}
-		
-		// Add Y axis label
+
 		const yAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", 'text');
 		yAxisLabel.textContent = 'Value';
-		yAxisLabel.setAttribute('x', margin.left - 40); // offset from axis
-		yAxisLabel.setAttribute('y', height / 2); // center vertically
+		yAxisLabel.setAttribute('x', margin.left - 40);
+		yAxisLabel.setAttribute('y', height / 2);
 		yAxisLabel.setAttribute('text-anchor', 'middle');
 		yAxisLabel.setAttribute('dominant-baseline', 'middle');
 		yAxisLabel.setAttribute('fill', colors.axis);
 		yAxisLabel.setAttribute('font-size', '16');
-		yAxisLabel.setAttribute('transform', `rotate(-90 ${margin.left - 40} ${height / 2})`); // rotate label vertically
+		yAxisLabel.setAttribute('transform', `rotate(-90 ${margin.left - 40} ${height / 2})`);
 		axesGroup.appendChild(yAxisLabel);
 
-/*
-		for (let i = 0; i <= maxX; i += 1) {
-			const x = scale(i, 0, maxX, margin.left, width - margin.right);
-			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-			tick.setAttribute('x1', x);
-			tick.setAttribute('y1', height - margin.bottom);
-			tick.setAttribute('x2', x);
-			tick.setAttribute('y2', height - margin.bottom + tickLength);
-			tick.setAttribute('stroke', colors.ticks);
-			axesGroup.appendChild(tick);
-		}
-
-		for (let i = 0; i <= maxY; i += 10) {
-			const y = scale(i, 0, maxY, height - margin.bottom, margin.top);
-			const tick = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-			tick.setAttribute('x1', margin.left - tickLength);
-			tick.setAttribute('y1', y);
-			tick.setAttribute('x2', margin.left);
-			tick.setAttribute('y2', y);
-			tick.setAttribute('stroke', colors.ticks);
-			axesGroup.appendChild(tick);
-		}
-*/
-
 		svg.appendChild(axesGroup);
-	}
+	};
 
-	var drawLine = function() {
-		// Remove old line if present
+	const drawLine = () => {
 		let oldLine = svg.querySelector('#line');
 		if (oldLine) svg.removeChild(oldLine);
-
 		const lineGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
 		lineGroup.id = 'line';
-
 		const path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
 
 		const { width, height, margin } = chartConfig;
+		const minX = Math.min(...data.map(d => d.x));
 		const maxX = Math.max(...data.map(d => d.x));
+		const minY = Math.min(...data.map(d => d.y));
 		const maxY = Math.max(...data.map(d => d.y));
 
 		let d = '';
 		data.forEach((point, index) => {
-			const x = scale(point.x, 0, maxX, margin.left, width - margin.right);
-			const y = scale(point.y, 0, maxY, height - margin.bottom, margin.top);
+			const x = scale(point.x, minX, maxX, margin.left, width - margin.right);
+			const y = scale(point.y, minY, maxY, height - margin.bottom, margin.top);
 			d += (index === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
 		});
 
@@ -701,24 +699,11 @@ const render_a_chart = function(element_id, data) {
 		path.setAttribute('fill', 'none');
 		path.setAttribute('stroke', colors.line);
 		path.setAttribute('stroke-width', 2);
-
 		lineGroup.appendChild(path);
 		svg.appendChild(lineGroup);
-	}
-
-	const removeTicks = function() {
-		const axesGroup = svg.querySelector('#axes');
-		if (!axesGroup) return;
-		const ticks = axesGroup.querySelectorAll('line');
-		ticks.forEach((tick, index) => {
-			// Keep the first two lines (x & y axes) and remove the rest
-			if (index > 1) axesGroup.removeChild(tick);
-		});
-	}
+	};
 
 	drawAxes();
 	drawLine();
 };
-
-
 

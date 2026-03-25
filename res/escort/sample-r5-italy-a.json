@@ -1,0 +1,405 @@
+{  
+  "country": "Italy",
+  "baseline_year": 2025,
+  "target_year": 2057,
+  "elderly_population": {
+    "baseline": 14844610.0,
+    "target": 18112860.5,
+    "relative_change_percent": 22.02
+  },
+  "resource_scaling": {
+    "multiplier": 1.2202,
+    "relative_change_percent": 22.02,
+    "interpretation": "Resources must increase by 22.02% to maintain baseline service levels."
+  },
+  "baseline_reference_series": {
+    "baseline_year": 2025,
+    "series": [
+      {
+        "year": 2024,
+        "relative_change_percent": -1.56,
+        "resource_multiplier": 0.9844
+      },
+      {
+        "year": 2025,
+        "relative_change_percent": 0.0,
+        "resource_multiplier": 1.0
+      },
+      {
+        "year": 2026,
+        "relative_change_percent": 1.62,
+        "resource_multiplier": 1.0162
+      },
+      {
+        "year": 2027,
+        "relative_change_percent": 3.32,
+        "resource_multiplier": 1.0332
+      },
+      {
+        "year": 2028,
+        "relative_change_percent": 5.23,
+        "resource_multiplier": 1.0523
+      },
+      {
+        "year": 2029,
+        "relative_change_percent": 7.27,
+        "resource_multiplier": 1.0727
+      },
+      {
+        "year": 2030,
+        "relative_change_percent": 9.41,
+        "resource_multiplier": 1.0941
+      },
+      {
+        "year": 2031,
+        "relative_change_percent": 11.53,
+        "resource_multiplier": 1.1153
+      },
+      {
+        "year": 2032,
+        "relative_change_percent": 13.55,
+        "resource_multiplier": 1.1355
+      },
+      {
+        "year": 2033,
+        "relative_change_percent": 15.56,
+        "resource_multiplier": 1.1556
+      },
+      {
+        "year": 2034,
+        "relative_change_percent": 17.49,
+        "resource_multiplier": 1.1749
+      },
+      {
+        "year": 2035,
+        "relative_change_percent": 19.3,
+        "resource_multiplier": 1.193
+      },
+      {
+        "year": 2036,
+        "relative_change_percent": 21.08,
+        "resource_multiplier": 1.2108
+      },
+      {
+        "year": 2037,
+        "relative_change_percent": 22.8,
+        "resource_multiplier": 1.228
+      },
+      {
+        "year": 2038,
+        "relative_change_percent": 24.41,
+        "resource_multiplier": 1.2441
+      },
+      {
+        "year": 2039,
+        "relative_change_percent": 25.94,
+        "resource_multiplier": 1.2594
+      },
+      {
+        "year": 2040,
+        "relative_change_percent": 27.33,
+        "resource_multiplier": 1.2733
+      },
+      {
+        "year": 2041,
+        "relative_change_percent": 28.47,
+        "resource_multiplier": 1.2847
+      },
+      {
+        "year": 2042,
+        "relative_change_percent": 29.35,
+        "resource_multiplier": 1.2935
+      },
+      {
+        "year": 2043,
+        "relative_change_percent": 29.95,
+        "resource_multiplier": 1.2995
+      },
+      {
+        "year": 2044,
+        "relative_change_percent": 30.3,
+        "resource_multiplier": 1.303
+      },
+      {
+        "year": 2045,
+        "relative_change_percent": 30.43,
+        "resource_multiplier": 1.3043
+      },
+      {
+        "year": 2046,
+        "relative_change_percent": 30.43,
+        "resource_multiplier": 1.3043
+      },
+      {
+        "year": 2047,
+        "relative_change_percent": 30.29,
+        "resource_multiplier": 1.3029
+      },
+      {
+        "year": 2048,
+        "relative_change_percent": 29.95,
+        "resource_multiplier": 1.2995
+      },
+      {
+        "year": 2049,
+        "relative_change_percent": 29.42,
+        "resource_multiplier": 1.2942
+      },
+      {
+        "year": 2050,
+        "relative_change_percent": 28.74,
+        "resource_multiplier": 1.2874
+      },
+      {
+        "year": 2051,
+        "relative_change_percent": 27.91,
+        "resource_multiplier": 1.2791
+      },
+      {
+        "year": 2052,
+        "relative_change_percent": 26.93,
+        "resource_multiplier": 1.2693
+      },
+      {
+        "year": 2053,
+        "relative_change_percent": 26.0,
+        "resource_multiplier": 1.26
+      },
+      {
+        "year": 2054,
+        "relative_change_percent": 25.12,
+        "resource_multiplier": 1.2512
+      },
+      {
+        "year": 2055,
+        "relative_change_percent": 24.16,
+        "resource_multiplier": 1.2416
+      },
+      {
+        "year": 2056,
+        "relative_change_percent": 23.13,
+        "resource_multiplier": 1.2313
+      },
+      {
+        "year": 2057,
+        "relative_change_percent": 22.02,
+        "resource_multiplier": 1.2202
+      },
+      {
+        "year": 2058,
+        "relative_change_percent": 20.76,
+        "resource_multiplier": 1.2076
+      },
+      {
+        "year": 2059,
+        "relative_change_percent": 19.33,
+        "resource_multiplier": 1.1933
+      },
+      {
+        "year": 2060,
+        "relative_change_percent": 17.84,
+        "resource_multiplier": 1.1784
+      },
+      {
+        "year": 2061,
+        "relative_change_percent": 16.34,
+        "resource_multiplier": 1.1634
+      },
+      {
+        "year": 2062,
+        "relative_change_percent": 14.84,
+        "resource_multiplier": 1.1484
+      },
+      {
+        "year": 2063,
+        "relative_change_percent": 13.39,
+        "resource_multiplier": 1.1339
+      },
+      {
+        "year": 2064,
+        "relative_change_percent": 11.99,
+        "resource_multiplier": 1.1199
+      },
+      {
+        "year": 2065,
+        "relative_change_percent": 10.64,
+        "resource_multiplier": 1.1064
+      },
+      {
+        "year": 2066,
+        "relative_change_percent": 9.36,
+        "resource_multiplier": 1.0936
+      },
+      {
+        "year": 2067,
+        "relative_change_percent": 8.13,
+        "resource_multiplier": 1.0813
+      },
+      {
+        "year": 2068,
+        "relative_change_percent": 7.04,
+        "resource_multiplier": 1.0704
+      },
+      {
+        "year": 2069,
+        "relative_change_percent": 6.12,
+        "resource_multiplier": 1.0612
+      },
+      {
+        "year": 2070,
+        "relative_change_percent": 5.34,
+        "resource_multiplier": 1.0534
+      },
+      {
+        "year": 2071,
+        "relative_change_percent": 4.69,
+        "resource_multiplier": 1.0469
+      },
+      {
+        "year": 2072,
+        "relative_change_percent": 4.17,
+        "resource_multiplier": 1.0417
+      },
+      {
+        "year": 2073,
+        "relative_change_percent": 3.74,
+        "resource_multiplier": 1.0374
+      },
+      {
+        "year": 2074,
+        "relative_change_percent": 3.39,
+        "resource_multiplier": 1.0339
+      },
+      {
+        "year": 2075,
+        "relative_change_percent": 3.06,
+        "resource_multiplier": 1.0306
+      },
+      {
+        "year": 2076,
+        "relative_change_percent": 2.74,
+        "resource_multiplier": 1.0274
+      },
+      {
+        "year": 2077,
+        "relative_change_percent": 2.42,
+        "resource_multiplier": 1.0242
+      },
+      {
+        "year": 2078,
+        "relative_change_percent": 2.07,
+        "resource_multiplier": 1.0207
+      },
+      {
+        "year": 2079,
+        "relative_change_percent": 1.7,
+        "resource_multiplier": 1.017
+      },
+      {
+        "year": 2080,
+        "relative_change_percent": 1.32,
+        "resource_multiplier": 1.0132
+      },
+      {
+        "year": 2081,
+        "relative_change_percent": 0.93,
+        "resource_multiplier": 1.0093
+      },
+      {
+        "year": 2082,
+        "relative_change_percent": 0.52,
+        "resource_multiplier": 1.0052
+      },
+      {
+        "year": 2083,
+        "relative_change_percent": 0.05,
+        "resource_multiplier": 1.0005
+      },
+      {
+        "year": 2084,
+        "relative_change_percent": -0.51,
+        "resource_multiplier": 0.9949
+      },
+      {
+        "year": 2085,
+        "relative_change_percent": -1.12,
+        "resource_multiplier": 0.9888
+      },
+      {
+        "year": 2086,
+        "relative_change_percent": -1.73,
+        "resource_multiplier": 0.9827
+      },
+      {
+        "year": 2087,
+        "relative_change_percent": -2.33,
+        "resource_multiplier": 0.9767
+      },
+      {
+        "year": 2088,
+        "relative_change_percent": -2.99,
+        "resource_multiplier": 0.9701
+      },
+      {
+        "year": 2089,
+        "relative_change_percent": -3.67,
+        "resource_multiplier": 0.9633
+      },
+      {
+        "year": 2090,
+        "relative_change_percent": -4.34,
+        "resource_multiplier": 0.9566
+      },
+      {
+        "year": 2091,
+        "relative_change_percent": -5.01,
+        "resource_multiplier": 0.9499
+      },
+      {
+        "year": 2092,
+        "relative_change_percent": -5.67,
+        "resource_multiplier": 0.9433
+      },
+      {
+        "year": 2093,
+        "relative_change_percent": -6.32,
+        "resource_multiplier": 0.9368
+      },
+      {
+        "year": 2094,
+        "relative_change_percent": -6.96,
+        "resource_multiplier": 0.9304
+      },
+      {
+        "year": 2095,
+        "relative_change_percent": -7.6,
+        "resource_multiplier": 0.924
+      },
+      {
+        "year": 2096,
+        "relative_change_percent": -8.24,
+        "resource_multiplier": 0.9176
+      },
+      {
+        "year": 2097,
+        "relative_change_percent": -8.88,
+        "resource_multiplier": 0.9112
+      },
+      {
+        "year": 2098,
+        "relative_change_percent": -9.51,
+        "resource_multiplier": 0.9049
+      },
+      {
+        "year": 2099,
+        "relative_change_percent": -10.12,
+        "resource_multiplier": 0.8988
+      },
+      {
+        "year": 2100,
+        "relative_change_percent": -10.72,
+        "resource_multiplier": 0.8928
+      }
+    ]
+  }
+}
