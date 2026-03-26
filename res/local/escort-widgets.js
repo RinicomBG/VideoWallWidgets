@@ -442,7 +442,7 @@ async function handleAnchorClick(event) {
 	}
 }
 
-async function handleChartDataAnchorClick(event) {
+async function handleChartDataAnchorClickA(event) {
 	console.log('logging');
 	event.preventDefault();
 
@@ -454,11 +454,34 @@ async function handleChartDataAnchorClick(event) {
 		}
 		const textData = await response.text();
 		const jsonObject = JSON.parse(textData);
-		console.log("raw chart data", jsonObject);
-		//const chartData = chart_map_series(jsonObject.baseline_reference_series, 'total_population');
 		const chartData = chart_map_series(jsonObject, 'total_population');
-		console.log("chart data", chartData);
 		render_a_chart('chart-0', chartData);
+
+		const elderlyChartData = chart_map_series(jsonObject, 'elderly_population');
+		render_a_chart('chart-1', elderlyChartData);
+	} catch (error) {
+		console.error("Failed to fetch or parse JSON:", error);
+		throw error;
+	}
+}
+
+async function handleChartDataAnchorClickB(event) {
+	console.log('logging');
+	event.preventDefault();
+
+	const url = event.currentTarget.href;
+	try {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(`HTTP error! Status: ${response.status}`);
+		}
+		const textData = await response.text();
+		const jsonObject = JSON.parse(textData);
+		const chartData = chart_map_series(jsonObject.baseline_reference_series, 'relative_change_percent');
+		render_a_chart('chart-2', chartData);
+
+		//const elderlyChartData = chart_map_series(jsonObject, 'elderly_population');
+		//render_a_chart('chart-1', elderlyChartData);
 	} catch (error) {
 		console.error("Failed to fetch or parse JSON:", error);
 		throw error;
