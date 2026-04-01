@@ -31,6 +31,14 @@ const setHTML = (el, html) => {
 	if (el) el.innerHTML = html;
 };
 
+const formatBigNumber = function(num) {
+	if (Math.abs(num) >= 1_000_000_000) return (num / 1_000_000_000) + "G";
+	if (Math.abs(num) >= 1_000_000) return (num / 1_000_000) + "M";
+	if (Math.abs(num) >= 1_000) return (num / 1_000) + "k";
+	return num;
+};
+
+
 const formatNumber = (value, decimals = 0) =>
 	value.toLocaleString(
 		"en-US",
@@ -456,9 +464,11 @@ async function handleChartDataAnchorClickA(event) {
 		const jsonObject = JSON.parse(textData);
 		const chartData = chart_map_series(jsonObject, 'total_population');
 		render_a_chart('chart-0', chartData);
+		update_chart_titles('chart-0', 'Total Population', '');
 
 		const elderlyChartData = chart_map_series(jsonObject, 'elderly_population');
 		render_a_chart('chart-1', elderlyChartData);
+		update_chart_titles('chart-1', 'Elderly Population', '');
 	} catch (error) {
 		console.error("Failed to fetch or parse JSON:", error);
 		throw error;
@@ -479,6 +489,9 @@ async function handleChartDataAnchorClickB(event) {
 		const jsonObject = JSON.parse(textData);
 		const chartData = chart_map_series(jsonObject.baseline_reference_series, 'relative_change_percent');
 		render_a_chart('chart-2', chartData);
+		update_chart_titles('chart-2', 'Relative Change %', formatNumber(jsonObject["resource_scaling"]["relative_change_percent"], 1) + '%');
+
+		update_chart_para('chart-2', jsonObject["resource_scaling"]["interpretation"]);
 
 		//const elderlyChartData = chart_map_series(jsonObject, 'elderly_population');
 		//render_a_chart('chart-1', elderlyChartData);
@@ -540,6 +553,19 @@ const chart_map_series = function(data, key) {
 //const total = chart_map_series(data, "total_population");
 //const elderly = chart_map_series(data, "elderly_population");
 
+const update_chart_titles = function(element_id_prefix, title, major_value) {
+	const title_element = document.getElementById(element_id_prefix + '-title');
+	title_element.textContent = title;
+	const major_value_element = document.getElementById(element_id_prefix + '-major-value');
+	major_value_element.textContent = major_value;
+	return;
+}
+
+const update_chart_para = function(element_id_prefix, para) {
+	const para_element = document.getElementById(element_id_prefix + '-paragraph-text');
+	para_element.textContent = para;
+}
+
 const render_a_chart = function(element_id, data) {
 	const colors = (() => {
 		const root = document.documentElement;
@@ -581,12 +607,14 @@ const render_a_chart = function(element_id, data) {
 	};
 
 	// Helper to format large numbers
-	const formatNumber = (num) => {
-		if (Math.abs(num) >= 1_000_000_000) return (num / 1_000_000_000) + "B";
-		if (Math.abs(num) >= 1_000_000) return (num / 1_000_000) + "M";
-		if (Math.abs(num) >= 1_000) return (num / 1_000) + "K";
-		return num;
-	};
+//	const formatNumber = (num) => {
+//		if (Math.abs(num) >= 1_000_000_000) return (num / 1_000_000_000) + "G";
+//		if (Math.abs(num) >= 1_000_000) return (num / 1_000_000) + "M";
+//		if (Math.abs(num) >= 1_000) return (num / 1_000) + "k";
+//		return num;
+//	};
+	
+	const formatNumber = formatBigNumber;
 
 	const drawAxes = () => {
 		let oldAxes = svg.querySelector('#axes');
