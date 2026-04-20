@@ -11,6 +11,7 @@
 		--bg-section: #10283f;
 		--bg-card: #173a5c;
 		--text-main: #ffffff;
+		--text-main-mark: #cccccc;
 		--text-secondary: #9bb3c9;
 		--badge-default: #163553;
 		--badge-blue: #1b4c7a;
@@ -63,6 +64,15 @@
 		font-display: swap;
 	}
 
+	::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* For Firefox */
+	html {
+		scrollbar-width: none;
+	}
+
 	body {
 		margin: 0;
 		min-height: 100vh;
@@ -101,6 +111,11 @@
 		font-size: 26px;
 		font-weight: 600;
 		color: var(--text-main);
+	}
+
+	.title mark {
+		color: var(--text-main-mark);
+		background: inherit;
 	}
 
 	.badges {
@@ -303,6 +318,17 @@ svg.appendChild(line);}
 </script>
 
 <script src="res/local/escort-widgets.js"></script>
+<script src="res/local/ticker.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", (event) => {
+	const tick = function() {
+		ticker_tick(document.getElementById('page-title'));
+		setTimeout(tick, 1000);
+	};
+	setTimeout(tick, 1000);
+});
+</script>
 
 </head>
 
@@ -311,7 +337,7 @@ svg.appendChild(line);}
 <div class="container">
 
 	<div class="header">
-		<div class="title">Earthquake Impact Estimator</div>
+		<div class="title" id="page-title">Earthquake Impact Estimator</div>
 		<div class="badges">
 			<div class="badge">M: <span>6</span></div>
 			<div class="badge">Pop: <span>3,168,000</span></div>
@@ -517,6 +543,8 @@ svg.appendChild(line);}
 				<ul>
 					<li><a href="res/escort/sample-r1-a.json" onclick="handleAnchorClick(event)">sample-r1-a.json</a></li>
 					<li><a href="res/escort/sample-r1-b.json" onclick="handleAnchorClick(event)">sample-r1-b.json</a></li>
+					<li><a href="/earthquake/run-demo" onclick="handleAnchorClick(event)">/earthquake/run-demo</a></li>
+					<li><a href="http://116.203.120.60:8003/run-demo" onclick="handleAnchorClick(event)">http://116.203.120.60:8003/run-demo</a></li>
 				</ul>
 			</div>
 		</div>

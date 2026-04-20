@@ -11,6 +11,7 @@
 		--bg-section: #10283f;
 		--bg-card: #173a5c;
 		--text-main: #ffffff;
+		--text-main-mark: #cccccc;
 		--text-secondary: #9bb3c9;
 		--badge-default: #163553;
 		--badge-blue: #1b4c7a;
@@ -101,6 +102,11 @@
 		font-size: 26px;
 		font-weight: 600;
 		color: var(--text-main);
+	}
+
+	.title mark {
+		color: var(--text-main-mark);
+		background: inherit;
 	}
 
 	.badges {
@@ -282,6 +288,7 @@
 </style>
 
 <script src="res/local/escort-widgets.js"></script>
+<script src="res/local/ticker.js"></script>
 
 <script>
 
@@ -295,6 +302,14 @@
 
 	document.addEventListener('DOMContentLoaded', onloadedfunction);
 
+	document.addEventListener('DOMContentLoaded', (event) => {
+		const tick = function() {
+			ticker_tick(document.getElementById('page-title'));
+			setTimeout(tick, 1000);
+		};
+		setTimeout(tick, 1000);
+	});
+
 </script>
 </head>
 
@@ -303,10 +318,7 @@
 <div class="container">
 
 	<div class="header">
-		<div class="title">Healthcare and Demographic Pressure - Italy</div>
-		<div class="badges">
-			<div class="badge">M: <span>6</span></div>
-		</div>
+		<div class="title" id="page-title">Healthcare and Demographic Pressure - Italy</div>
 	</div>
 
 	<div class="grid-section">
@@ -361,6 +373,7 @@
 				<ul>
 					<li><a href="res/escort/sample-r5-italy-a.json" onclick="handleChartDataAnchorClickB(event)">sample-r5-italy-a.json</a></li>
 					<li><a href="res/escort/sample-r5-italy-population-a.json" onclick="handleChartDataAnchorClickA(event)">sample-r5-italy-population-a.json</a></li>
+					<li><a href="/demographic/ageing-resources-demo" onclick="handleChartDataAnchorClickA(event)">/demographic/ageing-resources-demo</a></li>
 				</ul>
 			</div>
 		</div>
