@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>MQTT JSON-RPC Demo</title>
+
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background: #1e1e1e;
+			color: #f0f0f0;
+			padding: 20px;
+		}
+
+		h1 {
+			margin-top: 0;
+		}
+
+		.controls {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin-bottom: 20px;
+		}
+
+		button {
+			padding: 12px 18px;
+			border: none;
+			border-radius: 6px;
+			background: #3498db;
+			color: white;
+			cursor: pointer;
+			font-size: 14px;
+		}
+
+		button:hover {
+			background: #2980b9;
+		}
+
+		#log {
+			background: #111;
+			border: 1px solid #444;
+			padding: 10px;
+			height: 400px;
+			overflow-y: auto;
+			white-space: pre-wrap;
+			font-family: monospace;
+		}
+
+		.status {
+			margin-bottom: 10px;
+			color: #7CFC00;
+		}
+	</style>
+</head>
+<body>
+
+	<h1>MQTT JSON-RPC Test Page</h1>
+
+	<div class="status" id="status">
+		Connecting...
+	</div>
+
+	<div class="controls">
+		<button id="btnPing">Ping</button>
+		<button id="btnStatus">Get Status</button>
+		<button id="btnStart">Start</button>
+		<button id="btnStop">Stop</button>
+		<button id="btnCustom">Custom RPC</button>
+		<button id="btnDisconnect">Disconnect</button>
+	</div>
+
+	<div id="log"></div>
+
+	<!-- MQTT.js -->
+	<script src="res/local/mqtt.min.js"></script>
+
+	<!-- jsonrpc2.0 -->
+	<script src="res/local/jsonrpcovermqtt.js"></script>
+
+	<script>
+(function(){
+
+	const logEl = document.getElementById("log");
+	const statusEl = document.getElementById("status");
+
+	function log(...args) {
+		console.log(...args);
+
+		const line = args.map(a => {
+			if (typeof a === "object") {
+				return JSON.stringify(a, null, 2);
+			}
+			return String(a);
+		}).join(" ");
+
+		logEl.textContent += line + "\n";
+		logEl.scrollTop = logEl.scrollHeight;
+	}
+
+	// ----------------------------------------
+	// MQTT CONNECTION
+	// ----------------------------------------
+
+	var url = new URL(window.location.href);
+
+	const uri = "ws://" + url.hostname + ":9000";
+	const publish_topic = "watchman_rpc";
+	const subscribe_topic = "watchman_response";
+
+	log("Connecting to:", uri);
+
+	const rpc = new JsonRpcService(uri, subscribe_topic);
+
+	rpc.mqtt_conn.on("connect", () => {
+		statusEl.textContent = "Connected to " + uri;
+		log("MQTT connected");
+	});
+
+	rpc.mqtt_conn.on("close", () => {
+		statusEl.textContent = "Disconnected";
+		log("MQTT disconnected");
+	});
+
+	// ----------------------------------------
+	// INCOMING RPC METHODS
+	// ----------------------------------------
+
+	rpc.onMethodCalled = function(topic, message) {
+
+		log("RPC method received:", message);
+
+		// Placeholder response
+		const response = {
+			jsonrpc: "2.0",
+			id: message.id,
+			result: {
+				ok: true,
+				echo: message.method
+			}
+		};
+
+		rpc.sendMessage(publish_topic, response);
+	};
+
+	// ----------------------------------------
+	// GENERIC HANDLER
+	// ----------------------------------------
+
+	const handler = {
+		response: function(sent, response) {
+			log("RPC response received");
+			log("Sent:", sent);
+			log("Response:", response);
+		},
+
+		timeout: function(activeMessage) {
+			log("RPC timeout:", activeMessage);
+		}
+	};
+
+	// ----------------------------------------
+	// BUTTON HELPERS
+	// ----------------------------------------
+
+	function sendRpc(method, params = {}) {
+
+		const message = {
+			jsonrpc: "2.0",
+			id: null,
+			method: method,
+			params: params
+		};
+
+		rpc.sendMessage(publish_topic, message, handler);
+		log("Sent RPC:", message);
+	}
+
+	// ----------------------------------------
+	// BUTTON EVENTS
+	// ----------------------------------------
+
+	document.getElementById("btnPing")
+		.addEventListener("click", () => {
+			sendRpc("ping");
+		});
+
+	document.getElementById("btnStatus")
+		.addEventListener("click", () => {
+			sendRpc("get_status");
+		});
+
+	document.getElementById("btnStart")
+		.addEventListener("click", () => {
+			sendRpc("start_service", {
+				mode: "default"
+			});
+		});
+
+	document.getElementById("btnStop")
+		.addEventListener("click", () => {
+			sendRpc("stop_service");
+		});
+
+	document.getElementById("btnCustom")
+		.addEventListener("click", () => {
+
+			const method = prompt("Method name?");
+			if (!method) return;
+
+			sendRpc(method, {
+				test: true
+			});
+		});
+
+	document.getElementById("btnDisconnect")
+		.addEventListener("click", () => {
+			rpc.disconnect();
+		});
+
+})();
+	</script>
+
+</body>
+</html>

@@ -22,12 +22,12 @@ class JsonRpcService {
 		this.connected_uri = uri;
 		this.defaultTopic = undefined;
 		this.activeMessages = {};
-		this.baseId = "JSJSONRPC-" + Date.now() + "-" + Math.floor(Math.random()* 1000) + "/";
-		this.currentId = 0;
+		this.baseId = crypto.randomUUID();
 		this.onMethodCalled = function(topic, message) { console.log("method call received on topic " + topic, message); }
 	}
 
 	_sendMessage(topic, message, handler) {
+		console.log("sending message on " + topic);
 		if (typeof message !== 'object') {
 			console.error("All messages must be objects!", message);
 			return;
@@ -44,8 +44,7 @@ class JsonRpcService {
 			return;
 		}
 		if (message["id"] === null) {
-			message["id"] = this.baseId + this.currentId;
-			this.currentId = this.currentId + 1;
+			message["id"] = crypto.randomUUID()
 		} else {
 			console.warn("Message already has an id", message["id"]);
 			if (this.activeMessages[message["id"]] !== undefined) {
@@ -99,7 +98,7 @@ class JsonRpcService {
 	}
 
 	receiveMessage(topic, message) {
-		//console.log("Got Message", topic, this.connected_uri);
+		console.log("Got Message", topic, this.connected_uri);
 		message = JSON.parse(message.toString());
 
 		if (message.length !== undefined) {
