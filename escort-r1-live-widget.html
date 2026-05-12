@@ -328,6 +328,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
 	};
 	setTimeout(tick, 1000);
 });
+
+document.addEventListener("DOMContentLoaded", (event) => {
+	const link = document.getElementById("live-run-demo-link");
+	link.click();
+});
 </script>
 
 </head>
@@ -543,7 +548,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 				<ul>
 					<li><a href="res/escort/sample-r1-a.json" onclick="handleAnchorClick(event)">sample-r1-a.json</a></li>
 					<li><a href="res/escort/sample-r1-b.json" onclick="handleAnchorClick(event)">sample-r1-b.json</a></li>
-					<li><a href="/earthquake/run-demo" onclick="handleAnchorClick(event)">/earthquake/run-demo</a></li>
+					<li><a href="/earthquake/run-demo" id="live-run-demo-link" onclick="handleAnchorClick(event)">/earthquake/run-demo</a></li>
 					<li><a href="http://116.203.120.60:8003/run-demo" onclick="handleAnchorClick(event)">http://116.203.120.60:8003/run-demo</a></li>
 				</ul>
 			</div>

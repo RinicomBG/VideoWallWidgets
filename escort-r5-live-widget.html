@@ -310,6 +310,11 @@
 		setTimeout(tick, 1000);
 	});
 
+	document.addEventListener('DOMContentLoaded', (event) => {
+		const link = document.getElementById("live-ageing-resources-demo-link");
+		link.click();
+	});
+
 </script>
 </head>
 
@@ -373,7 +378,7 @@
 				<ul>
 					<li><a href="res/escort/sample-r5-italy-a.json" onclick="handleChartDataAnchorClickB(event)">sample-r5-italy-a.json</a></li>
 					<li><a href="res/escort/sample-r5-italy-population-a.json" onclick="handleChartDataAnchorClickA(event)">sample-r5-italy-population-a.json</a></li>
-					<li><a href="/demographic/ageing-resources-demo" onclick="handleChartDataAnchorClickA(event)">/demographic/ageing-resources-demo</a></li>
+					<li><a href="/demographic/ageing-resources-demo" id="live-ageing-resources-demo-link" onclick="handleChartDataAnchorClickB(event)">/demographic/ageing-resources-demo</a></li>
 				</ul>
 			</div>
 		</div>
