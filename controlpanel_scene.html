@@ -16,7 +16,24 @@
 
 <div class="content-area">
 <textarea id="editorTextarea">
-{"jsonrpc": "2.0","id": "SET_CURRENT_SCENE","method": "set_current_scene", "params":["B", false]}
+[
+{
+    "id": "STREAMS", "jsonrpc": "2.0", "method": "remove_stream", "params": {"stream_id":0}
+},
+{
+    "id": "STREAMS","jsonrpc": "2.0","method": "add_stream","params": [
+        {
+            "source": {
+                "name": "web",
+                "uri": "http://127.0.0.1/escortvideowall/escort-r5-live.html",
+                "resolution": [1536, 1024],
+                "frametimeout": 5000
+            },
+            "stream_id": 0
+        }
+    ]
+}
+]
 </textarea><br/>
 </div>
 <div class="button-container">
