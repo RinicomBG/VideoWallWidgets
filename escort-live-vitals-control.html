@@ -63,12 +63,17 @@
 	</div>
 
 	<div class="controls">
-		<button id="btnPing">Ping</button>
-		<button id="btnStatus">Get Status</button>
-		<button id="btnStart">Start</button>
-		<button id="btnStop">Stop</button>
-		<button id="btnCustom">Custom RPC</button>
-		<button id="btnDisconnect">Disconnect</button>
+		<button id="btnRemoveStream">Remove Stream</button>
+		<button id="btnR1Widget">Show r1 Widget Page</button>
+		<button id="btnR5Widget">Show r5 Widget Page</button>
+	</div>
+
+	<div class="controls">
+		<input type="text" id="txtUrl0" style="width: 600px;" /><button id="btnSetUrl0">Set this URL</button>
+	</div>
+
+	<div class="controls">
+		<input type="text" id="txtUrl1" style="width: 600px;" /><button id="btnSetUrl1">Set this URL</button>
 	</div>
 
 	<div id="log"></div>
@@ -181,43 +186,81 @@
 	// BUTTON EVENTS
 	// ----------------------------------------
 
-	document.getElementById("btnPing")
+	document.getElementById("btnRemoveStream")
 		.addEventListener("click", () => {
-			sendRpc("ping");
+			sendRpc("remove_stream", { "stream_id": 0 });
 		});
 
-	document.getElementById("btnStatus")
+	document.getElementById("btnR1Widget")
 		.addEventListener("click", () => {
-			sendRpc("get_status");
+			sendRpc("add_stream", 
+				[{
+			            "source": {
+			                "name": "web",
+			                "uri": "http://127.0.0.1/escortvideowall/escort-r1-live.html",
+			                "resolution": [1536, 1024],
+			                "frametimeout": 5000
+			            },
+			            "stream_id": 0
+			        }]
+			);
 		});
 
-	document.getElementById("btnStart")
+	document.getElementById("btnR5Widget")
 		.addEventListener("click", () => {
-			sendRpc("start_service", {
-				mode: "default"
-			});
+			sendRpc("add_stream", 
+				[{
+			            "source": {
+			                "name": "web",
+			                "uri": "http://127.0.0.1/escortvideowall/escort-r5-live.html",
+			                "resolution": [1536, 1024],
+			                "frametimeout": 5000
+			            },
+			            "stream_id": 0
+			        }]
+			);
 		});
 
-	document.getElementById("btnStop")
+	document.getElementById("btnSetUrl0")
 		.addEventListener("click", () => {
-			sendRpc("stop_service");
+			sendRpc("add_stream", 
+				[{
+			            "source": {
+			                "name": "web",
+			                "uri": document.getElementById("txtUrl0").value,
+			                "resolution": [1536, 1024],
+			                "frametimeout": 5000
+			            },
+			            "stream_id": 0
+			        }]
+			);
 		});
 
-	document.getElementById("btnCustom")
+	document.getElementById("btnSetUrl1")
 		.addEventListener("click", () => {
-
-			const method = prompt("Method name?");
-			if (!method) return;
-
-			sendRpc(method, {
-				test: true
-			});
+			sendRpc("add_stream", 
+				[{
+			            "source": {
+			                "name": "web",
+			                "uri": document.getElementById("txtUrl1").value,
+			                "resolution": [1536, 1024],
+			                "frametimeout": 5000
+			            },
+			            "stream_id": 0
+			        }]
+			);
 		});
 
-	document.getElementById("btnDisconnect")
-		.addEventListener("click", () => {
-			rpc.disconnect();
-		});
+//	document.getElementById("btnCustom")
+//		.addEventListener("click", () => {
+//
+//			const method = prompt("Method name?");
+//			if (!method) return;
+//
+//			sendRpc(method, {
+//				test: true
+//			});
+//		});
 
 })();
 	</script>

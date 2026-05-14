@@ -1,5 +1,9 @@
 class JsonRpcService {
 	constructor(uri, topic) {
+		const uuidv4 = function() {
+			return "10000000-1000-4000-8000-100000000000".replace( /[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4))).toString(16) );
+		}
+
 		/*
 		const uri_decoder = /^([a-z]+):\/\/(([A-Za-z0-9]+):([A-Za-z0-9]+)@)?([A-Za-z0-9\._-]+)(:([0-9]+))?\/?/;
 		const uri_parts = uri.match(uri_decoder);
@@ -22,7 +26,8 @@ class JsonRpcService {
 		this.connected_uri = uri;
 		this.defaultTopic = undefined;
 		this.activeMessages = {};
-		this.baseId = crypto.randomUUID();
+		this.baseId = uuidv4();
+		this.uuidv4 = uuidv4;
 		this.onMethodCalled = function(topic, message) { console.log("method call received on topic " + topic, message); }
 	}
 
@@ -44,7 +49,7 @@ class JsonRpcService {
 			return;
 		}
 		if (message["id"] === null) {
-			message["id"] = crypto.randomUUID()
+			message["id"] = this.uuidv4();
 		} else {
 			console.warn("Message already has an id", message["id"]);
 			if (this.activeMessages[message["id"]] !== undefined) {
