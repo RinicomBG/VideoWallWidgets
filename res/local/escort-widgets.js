@@ -487,14 +487,18 @@ async function handleChartDataAnchorClickB(event) {
 		}
 		const textData = await response.text();
 		const jsonObject = JSON.parse(textData);
-		const chartData = chart_map_series(jsonObject.baseline_reference_series, 'relative_change_percent');
+		let chartData = chart_map_series(jsonObject.baseline_reference_series, 'relative_change_percent');
 		render_a_chart('chart-2', chartData);
 		update_chart_titles('chart-2', 'Relative Change %', formatNumber(jsonObject["resource_scaling"]["relative_change_percent"], 1) + '%');
 
 		update_chart_para('chart-2', jsonObject["resource_scaling"]["interpretation"]);
 
-		//const elderlyChartData = chart_map_series(jsonObject, 'elderly_population');
-		//render_a_chart('chart-1', elderlyChartData);
+		chartData = chart_map_series(jsonObject.baseline_reference_series, 'total_population');
+		render_a_chart('chart-0', chartData);
+		update_chart_titles('chart-0', 'Total Population', '');
+		chartData = chart_map_series(jsonObject.baseline_reference_series, 'elderly_population');
+		render_a_chart('chart-1', chartData);
+		update_chart_titles('chart-1', 'Elderly Population', '');
 	} catch (error) {
 		console.error("Failed to fetch or parse JSON:", error);
 		throw error;

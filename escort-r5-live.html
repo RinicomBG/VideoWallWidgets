@@ -287,6 +287,7 @@
 	}
 </style>
 
+<script src="res/local/url_hash_params.js"></script>
 <script src="res/local/escort-widgets.js"></script>
 <script src="res/local/ticker.js"></script>
 
@@ -311,8 +312,15 @@
 	});
 
 	document.addEventListener('DOMContentLoaded', (event) => {
-		const link = document.getElementById("live-ageing-resources-demo-link");
-		link.click();
+		//const link = document.getElementById("live-ageing-resources-demo-link");
+		//link.click();
+		// get the arguments from the url after the hash
+		let url_params = parseHashParams(window.location.href);
+		let query_params = buildQueryString(url_params);
+		const link2 = document.getElementById("live-ageing-resources-link");
+		link2.href = '/demographic/ageing-resources?' + query_params;
+		document.getElementById('page-title').textContent = 'Healthcare and Demographic Pressure - ' + url_params['country'];
+		link2.click();
 	});
 
 </script>
@@ -374,11 +382,12 @@
 	<div class="grid-section">
 		<div style="background: var(--bg-card); border-radius: 16px; width: 100%; padding: 5px;">
 			<h1 style="margin-top: 4px; margin-bottom: 8px; margin-left: 16px;">Sample Data</h1>
-			<div class="grid-item">
+			<div class="grid-item" id="data-to-load-links">
 				<ul>
 					<li><a href="res/escort/sample-r5-italy-a.json" onclick="handleChartDataAnchorClickB(event)">sample-r5-italy-a.json</a></li>
 					<li><a href="res/escort/sample-r5-italy-population-a.json" onclick="handleChartDataAnchorClickA(event)">sample-r5-italy-population-a.json</a></li>
 					<li><a href="/demographic/ageing-resources-demo" id="live-ageing-resources-demo-link" onclick="handleChartDataAnchorClickB(event)">/demographic/ageing-resources-demo</a></li>
+					<li><a href="/demographic/ageing-resources" id="live-ageing-resources-link" onclick="handleChartDataAnchorClickB(event)">/demographic/ageing-resources</a></li>
 				</ul>
 			</div>
 		</div>
