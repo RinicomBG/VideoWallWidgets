@@ -317,7 +317,8 @@
 		const link2 = document.getElementById("live-ageing-resources-link");
 		link2.href = '/demographic/ageing-resources?' + query_params;
 		document.getElementById('page-title').textContent = 'Healthcare and Demographic Pressure - ' + url_params['country'];
-		link2.click();
+		handleChartDataAnchorClickB({preventDefault:function() {}, currentTarget: {href: link2.href}});
+		//link2.click();
 	}
 
 	document.addEventListener('DOMContentLoaded', (event) => {

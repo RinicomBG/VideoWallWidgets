@@ -499,6 +499,8 @@ async function handleChartDataAnchorClickB(event) {
 		chartData = chart_map_series(jsonObject.baseline_reference_series, 'elderly_population');
 		render_a_chart('chart-1', chartData);
 		update_chart_titles('chart-1', 'Elderly Population', '');
+		highlightX('chart-0', jsonObject["baseline_year"], 'green');
+		highlightX('chart-0', jsonObject["target_year"], 'red');
 	} catch (error) {
 		console.error("Failed to fetch or parse JSON:", error);
 		throw error;
@@ -610,6 +612,12 @@ const render_a_chart = function(element_id, data) {
 		return niceFraction * Math.pow(10, exponent);
 	};
 
+	//const minX = Math.min(...data.map(d => d.x));
+	//const maxX = Math.max(...data.map(d => d.x));
+
+	//svg.dataset.minX = minX;
+	//svg.dataset.maxX = maxX;
+
 	// Helper to format large numbers
 //	const formatNumber = (num) => {
 //		if (Math.abs(num) >= 1_000_000_000) return (num / 1_000_000_000) + "G";
@@ -632,6 +640,9 @@ const render_a_chart = function(element_id, data) {
 		const maxX = Math.max(...data.map(d => d.x));
 		const minY = Math.min(...data.map(d => d.y));
 		const maxY = Math.max(...data.map(d => d.y));
+
+		svg.dataset.minX = minX;
+		svg.dataset.maxX = maxX;
 
 		// Y-axis line
 		const yAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
@@ -761,4 +772,47 @@ const render_a_chart = function(element_id, data) {
 	drawAxes();
 	drawLine();
 };
+
+const highlightX = function(chartId, value, color) {
+	const svg = document.getElementById(chartId);
+	if (!svg) return;
+
+	// Configuration constants matching render_a_chart
+	const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+	const width = svg.clientWidth;
+	const height = svg.clientHeight;
+
+	// Basic validation
+	if (width <= 0 || height <= 0) return;
+
+	const minX = Number(svg.dataset.minX);
+	const maxX = Number(svg.dataset.maxX);
+
+	const pixelX =
+		((value - minX) / (maxX - minX)) *
+		(width - margin.left - margin.right) +
+		margin.left;
+
+	// Calculate pixel position using the same scale logic as render_a_chart
+	// scale(value, domainMin, domainMax, rangeMin, rangeMax)
+	//const pixelX = ((value - minX) / (maxX - minX)) * (width - margin.right - margin.left) + margin.left;
+
+	// Create the highlight line
+	const line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+	line.setAttribute('x1', pixelX);
+	line.setAttribute('y1', margin.top);
+	line.setAttribute('x2', pixelX);
+	line.setAttribute('y2', height - margin.bottom);
+	line.setAttribute('stroke', color);
+	line.setAttribute('stroke-width', 2); // Matches the data line width in render_a_chart
+	line.setAttribute('id', 'highlight-' + value);
+
+	// Insert before the data line group so it appears behind the data
+	const lineGroup = svg.querySelector('#line');
+	if (lineGroup) {
+		svg.insertBefore(line, lineGroup);
+	} else {
+		svg.appendChild(line);
+	}
+}
 
