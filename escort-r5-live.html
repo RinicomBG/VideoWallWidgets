@@ -311,16 +311,30 @@
 		setTimeout(tick, 1000);
 	});
 
-	document.addEventListener('DOMContentLoaded', (event) => {
-		//const link = document.getElementById("live-ageing-resources-demo-link");
-		//link.click();
-		// get the arguments from the url after the hash
-		let url_params = parseHashParams(window.location.href);
+	function updateTheData(url) {
+		let url_params = parseHashParams(url); // window.location.href);
 		let query_params = buildQueryString(url_params);
 		const link2 = document.getElementById("live-ageing-resources-link");
 		link2.href = '/demographic/ageing-resources?' + query_params;
 		document.getElementById('page-title').textContent = 'Healthcare and Demographic Pressure - ' + url_params['country'];
 		link2.click();
+	}
+
+	document.addEventListener('DOMContentLoaded', (event) => {
+		//const link = document.getElementById("live-ageing-resources-demo-link");
+		//link.click();
+		// get the arguments from the url after the hash
+		updateTheData(window.location.href);
+	});
+
+	window.addEventListener("hashchange", (event) => {
+		console.log("Old URL:", event.oldURL);
+		console.log("New URL:", event.newURL);
+		console.log("Current hash:", window.location.hash);
+
+		// Your callback logic here
+		//onNewUrl(window.location.hash);
+		updateTheData(window.location.href);
 	});
 
 </script>
