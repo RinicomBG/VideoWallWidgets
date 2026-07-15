@@ -636,13 +636,10 @@ const render_a_chart = function(element_id, data) {
 
 		const { width, height, margin, tickLength } = chartConfig;
 
-		const minX = Math.min(...data.map(d => d.x));
-		const maxX = Math.max(...data.map(d => d.x));
-		const minY = Math.min(...data.map(d => d.y));
-		const maxY = Math.max(...data.map(d => d.y));
-
-		svg.dataset.minX = minX;
-		svg.dataset.maxX = maxX;
+		let minX = Math.min(...data.map(d => d.x));
+		let maxX = Math.max(...data.map(d => d.x));
+		let minY = Math.min(...data.map(d => d.y));
+		let maxY = Math.max(...data.map(d => d.y));
 
 		// Y-axis line
 		const yAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
@@ -692,8 +689,14 @@ const render_a_chart = function(element_id, data) {
 		}
 
 		// Y ticks and labels
-		const yRange = maxY - minY;
-		const yStep = niceNumber(yRange / 8);
+		let yRange = maxY - minY;
+		let yStep = niceNumber(yRange / 8);
+		let new_minY = Math.floor(minY / yStep) * yStep;
+		let new_maxY = Math.ceil(maxY / yStep) * yStep;
+		minY = new_minY;
+		maxY = new_maxY;
+		yRange = maxY - minY;
+		yStep = niceNumber(yRange / 8);
 		for (let i = Math.ceil(minY / yStep) * yStep; i <= maxY; i += yStep) {
 			const y = scale(i, minY, maxY, height - margin.bottom, margin.top);
 
@@ -715,6 +718,11 @@ const render_a_chart = function(element_id, data) {
 			label.setAttribute('font-size', '14');
 			axesGroup.appendChild(label);
 		}
+
+		svg.dataset.minX = minX;
+		svg.dataset.maxX = maxX;
+		svg.dataset.minY = minY;
+		svg.dataset.maxY = maxY;
 
 		// Axis labels
 		const xAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", 'text');
@@ -749,10 +757,10 @@ const render_a_chart = function(element_id, data) {
 		const path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
 
 		const { width, height, margin } = chartConfig;
-		const minX = Math.min(...data.map(d => d.x));
-		const maxX = Math.max(...data.map(d => d.x));
-		const minY = Math.min(...data.map(d => d.y));
-		const maxY = Math.max(...data.map(d => d.y));
+		const minX = svg.dataset.minX === undefined ? Math.min(...data.map(d => d.x)) : svg.dataset.minX;
+		const maxX = svg.dataset.maxX === undefined ? Math.max(...data.map(d => d.x)) : svg.dataset.maxX;
+		const minY = svg.dataset.minY === undefined ? Math.min(...data.map(d => d.y)) : svg.dataset.minY;
+		const maxY = svg.dataset.maxY === undefined ? Math.max(...data.map(d => d.y)) : svg.dataset.maxY;
 
 		let d = '';
 		data.forEach((point, index) => {
