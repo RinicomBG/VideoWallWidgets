@@ -30,6 +30,8 @@
 		--card-border-danger: #b6463a;
 		--card-border-none: #173a5c;
 		--card-border-other: #1b7fc1;
+
+		--input-background-error: #8b2c26;
 	}
 
 	@font-face {
@@ -285,6 +287,63 @@
 			flex: 0 0 100%;
 		}
 	}
+
+	.top-right-controls {
+		display: flex;
+		/* flex-direction: column; */
+		flex-direction: row;
+		gap: 12px;
+		align-items: center;
+	}
+
+	.top-right-controls select,
+	.top-right-controls input {
+		padding: 8px 12px;
+		border-radius: 8px;
+		font-family: Inter-Display, sans-serif;
+		font-size: 14px;
+	}
+
+	.top-right-input-ok {
+		border: 1px solid var(--text-secondary);
+		background: var(--bg-card);
+		color: var(--text-main);
+	}
+
+	.top-right-controls select {
+		width: 200px;
+		min-width: 200px;
+	}
+
+	.top-right-controls input {
+		width: 100px;
+		min-width: 100px;
+	}
+
+	.top-right-controls select:focus,
+	.top-right-controls input:focus {
+		outline: none;
+		border-color: var(--badge-blue-text);
+	}
+
+	.top-right-controls input::placeholder {
+		color: var(--text-secondary);
+	}
+
+	.top-right-controls optgroup {
+		font-weight: bold;
+		color: var(--text-main);
+	}
+
+	.top-right-controls option {
+		background: var(--bg-card);
+		color: var(--text-main);
+	}
+
+	.top-right-input-error {
+		border: 1px solid var(--card-border-danger);
+		background: var(--input-background-error);
+	}
 </style>
 
 <script src="res/local/url_hash_params.js"></script>
@@ -299,6 +358,57 @@
 		//render_a_chart('chart-1', undefined);
 		//render_a_chart('chart-2', undefined);
 		//render_a_chart('chart-3', undefined);
+
+		var updateDisplay = function() {
+			const country = document.getElementById('country-select').value;
+			var baseline = convertToNumber(document.getElementById('baseline-input').value);
+			var target = convertToNumber(document.getElementById('target-input').value);
+
+			if (baseline == 0) {
+				baseline = 2025;
+			}
+
+			if (target == 0) {
+				target = 2040;
+			}
+
+			window.location.hash = '#?country=' + country + '&baseline=' + baseline + '&target=' + target;
+		};
+
+		var convertToNumber = function(str) {
+			let num = Number(str);
+			return isNaN(num) ? 0 : num;
+		};
+
+		var textInputUpdateFn = function(event) {
+			var year = convertToNumber(event.target.value);
+			if ((year < 2024 || year > 2100) && event.target.value !== '') {
+				event.target.classList.remove('top-right-input-ok');
+				event.target.classList.add('top-right-input-error');
+			} else {
+				event.target.classList.add('top-right-input-ok');
+				event.target.classList.remove('top-right-input-error');
+				updateDisplay();
+			}
+		};
+
+		var baselineInput = document.getElementById('baseline-input');
+		//baselineInput.addEventListener('change', function(event) {
+		baselineInput.addEventListener('input', textInputUpdateFn);
+		var targetInput = document.getElementById('target-input');
+		targetInput.addEventListener('input', textInputUpdateFn);
+
+		var inputEvent = { 'target': baselineInput };
+		textInputUpdateFn(inputEvent);
+		inputEvent.target = targetInput;
+		textInputUpdateFn(inputEvent);
+
+		var countrySelectCombo = document.getElementById("country-select");
+		countrySelectCombo.addEventListener("change", function(event) {
+			const selectedValue = event.target.value;
+			//console.log("new value= " + selectedValue);
+			updateDisplay();
+		});
 	}
 
 	document.addEventListener('DOMContentLoaded', onloadedfunction);
@@ -311,14 +421,28 @@
 		setTimeout(tick, 1000);
 	});
 
+	const updateTextInput = function(element, value) {
+		const originalOnchange = element.onchange;
+		element.value = value;
+		element.onchange = originalOnchange;
+	};
+
 	function updateTheData(url) {
 		let url_params = parseHashParams(url); // window.location.href);
 		let query_params = buildQueryString(url_params);
 		const link2 = document.getElementById("live-ageing-resources-link");
 		link2.href = '/demographic/ageing-resources?' + query_params;
-		document.getElementById('page-title').textContent = 'Healthcare and Demographic Pressure - ' + url_params['country'];
+		//document.getElementById('page-title').textContent = 'Healthcare and Demographic Pressure - ' + url_params['country'];
 		handleChartDataAnchorClickB({preventDefault:function() {}, currentTarget: {href: link2.href}});
 		//link2.click();
+		const selectElement = document.getElementById('country-select');
+		const originalOnchange = selectElement.onchange;
+		selectElement.onchange = null;
+		selectElement.value = url_params['country'];
+		selectElement.onchange = originalOnchange;
+
+		updateTextInput(document.getElementById('baseline-input'), url_params['baseline']);
+		updateTextInput(document.getElementById('target-input'), url_params['target']);
 	}
 
 	document.addEventListener('DOMContentLoaded', (event) => {
@@ -346,7 +470,20 @@
 <div class="container">
 
 	<div class="header">
-		<div class="title" id="page-title">Healthcare and Demographic Pressure - Italy</div>
+		<div class="title" id="page-title">Healthcare and Demographic Pressure</div>
+		<div class="top-right-controls">
+			<select id="country-select" class="top-right-input-ok">
+				<optgroup label="Country">
+					<option value="Greece" selected>Greece</option>
+					<option value="Italy">Italy</option>
+					<option value="Israel">Israel</option>
+					<option value="Belgium">Belgium</option>
+					<option value="Ireland">Ireland</option>
+				</optgroup>
+			</select>
+			<input type="text" id="baseline-input" placeholder="baseline">
+			<input type="text" id="target-input" placeholder="target">
+		</div>
 	</div>
 
 	<div class="grid-section">
@@ -394,7 +531,7 @@
 		<div class="grid-item big">
 		</div>
 	</div>
-	<div class="grid-section">
+	<div class="grid-section" style="display: none;">
 		<div style="background: var(--bg-card); border-radius: 16px; width: 100%; padding: 5px;">
 			<h1 style="margin-top: 4px; margin-bottom: 8px; margin-left: 16px;">Sample Data</h1>
 			<div class="grid-item" id="data-to-load-links">
@@ -424,5 +561,3 @@ document.querySelectorAll(".card").forEach(card => {
 
 </body>
 </html>
-
-
