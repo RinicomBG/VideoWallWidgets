@@ -349,8 +349,13 @@
 <script src="res/local/url_hash_params.js"></script>
 <script src="res/local/escort-widgets.js"></script>
 <script src="res/local/ticker.js"></script>
+<script src="res/local/mqtt.min.js"></script>
+<script src="res/local/jsonrpcovermqtt.js"></script>
 
 <script>
+	const RPCMETH_SELECT_COUNTRY = "select_country";
+
+	var g_jsonRpcService = null;
 
 	const onloadedfunction = function() {
 		// render the charts on load.
@@ -359,20 +364,44 @@
 		//render_a_chart('chart-2', undefined);
 		//render_a_chart('chart-3', undefined);
 
+		const updateCountry = function(country_name, baseline_year, target_year) {
+			document.getElementById('country-select').value = country_name;
+			document.getElementById('baseline-input').value = baseline_year;
+			document.getElementById('target-input').value = target_year;
+			window.location.hash = '#?country=' + country_name + '&baseline=' + baseline_year + '&target=' + target_year;
+		};
+
+		const initRpcService = function() {
+			var url = new URL(window.location.href);
+			const topic = "slideshow";
+			var jsonRpcService = new JsonRpcService('ws://' + url.hostname + ':9000', topic);
+			jsonRpcService.defaultTopic = topic;
+			var onMessageReceived = function(topic, message) {
+				if (message.method === RPCMETH_SELECT_COUNTRY) {
+					updateCountry(message.params.country_name, message.params.baseline_year, message.params.target_year);
+				}
+			};
+			jsonRpcService.onMethodCalled = onMessageReceived;
+			g_jsonRpcService = jsonRpcService;
+		}
+
 		var updateDisplay = function() {
-			const country = document.getElementById('country-select').value;
-			var baseline = convertToNumber(document.getElementById('baseline-input').value);
-			var target = convertToNumber(document.getElementById('target-input').value);
+			const country_name = document.getElementById('country-select').value;
+			var baseline_year = convertToNumber(document.getElementById('baseline-input').value);
+			var target_year = convertToNumber(document.getElementById('target-input').value);
 
-			if (baseline == 0) {
-				baseline = 2025;
+			if (baseline_year == 0) {
+				baseline_year = 2025;
 			}
 
-			if (target == 0) {
-				target = 2040;
+			if (target_year == 0) {
+				target_year = 2040;
 			}
 
-			window.location.hash = '#?country=' + country + '&baseline=' + baseline + '&target=' + target;
+			window.location.hash = '#?country=' + country_name + '&baseline=' + baseline_year + '&target=' + target_year;
+			if (g_jsonRpcService !== null) {
+				g_jsonRpcService.sendMessage(g_jsonRpcService.defaultTopic, {"jsonrpc":"2.0","method":RPCMETH_SELECT_COUNTRY,"id":null,"params":{"country_name":country_name,"baseline_year":baseline_year,"target_year":target_year}});
+			}
 		};
 
 		var convertToNumber = function(str) {
@@ -409,6 +438,8 @@
 			//console.log("new value= " + selectedValue);
 			updateDisplay();
 		});
+
+		initRpcService();
 	}
 
 	document.addEventListener('DOMContentLoaded', onloadedfunction);
